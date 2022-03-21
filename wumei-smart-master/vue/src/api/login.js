@@ -14,7 +14,28 @@ export function login(username, password, code, uuid) {
     data: data
   })
 }
-
+// 注册方法
+export function register(data) {
+  return request({
+    url: '/register',
+    headers: {
+      isToken: false
+    },
+    method: 'post',
+    data: data
+  })
+}
+// 修改密码方法
+export function forgetpassword(data) {
+  return request({
+    url: '/forgetpassword',
+    headers: {
+      isToken: false
+    },
+    method: 'post',
+    data: data
+  })
+}
 // 获取用户详细信息
 export function getInfo() {
   return request({

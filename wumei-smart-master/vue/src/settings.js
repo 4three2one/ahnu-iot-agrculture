@@ -1,5 +1,5 @@
 module.exports = {
-  title: '物美智能',
+  title: '智慧农业远程监控平台',
 
   /**
    * 侧边栏主题 深色主题theme-dark，浅色主题theme-light

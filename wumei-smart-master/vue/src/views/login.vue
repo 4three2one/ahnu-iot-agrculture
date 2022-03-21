@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title">物美智能管理系统</h3>
+      <h3 class="title">智慧农业远程监控平台</h3>
       <el-form-item prop="username">
         <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号">
           <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
@@ -44,6 +44,12 @@
           <span v-if="!loading">登 录</span>
           <span v-else>登 录 中...</span>
         </el-button>
+        <div style="float: right;" v-if="register">
+          <router-link style="float: left;" class="link-type" :to="'/register'">立即注册</router-link>
+        </div>
+        <div style="float: left;">
+          <router-link style="float: right;" class="link-type" :to="'/forgetpassword'">忘记密码</router-link>
+        </div>
       </el-form-item>
     </el-form>
     <!--  底部  -->
@@ -81,6 +87,7 @@ export default {
         code: [{ required: true, trigger: "change", message: "验证码不能为空" }]
       },
       loading: false,
+      register: true,
       redirect: undefined
     };
   },
