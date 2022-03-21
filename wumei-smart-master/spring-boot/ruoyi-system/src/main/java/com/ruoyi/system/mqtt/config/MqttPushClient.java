@@ -28,7 +28,7 @@ public class MqttPushClient {
     private static final Logger logger = LoggerFactory.getLogger(MqttPushClient.class);
 
     @Autowired
-    private PushCallback pushCallback;
+    private PushCallbackForTAS pushCallback;
 
     private static MqttClient client;
 

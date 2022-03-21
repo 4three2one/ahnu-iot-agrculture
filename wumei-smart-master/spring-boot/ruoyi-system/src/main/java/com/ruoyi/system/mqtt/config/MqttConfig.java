@@ -113,7 +113,7 @@ public class MqttConfig {
 
     @Bean
     public MqttPushClient getMqttPushClient() {
-        mqttPushClient.connect(hostUrl, clientId, username, password, timeout, keepalive);
+        /*mqttPushClient.connect(hostUrl, clientId, username, password, timeout, keepalive);
         // 订阅设备信息
         mqttPushClient.subscribe("device_info", 1);
         // 订阅设备状态
@@ -123,7 +123,9 @@ public class MqttConfig {
         // 订阅设备离线遗嘱
         mqttPushClient.subscribe("offline", 1);
         // 订阅CMD指令消息
-        mqttPushClient.subscribe("cmd", 1);
+        mqttPushClient.subscribe("cmd", 1);*/
+        mqttPushClient.connect(hostUrl, clientId, username, password, timeout, keepalive);
+        mqttPushClient.subscribe("/group/0319/push", 1);
         return mqttPushClient;
     }
 }
