@@ -1,7 +1,7 @@
 <template>
   <div class="forgetpassword">
     <el-form ref="registerForm" :model="registerForm" :rules="registerRules" class="register-form">
-      <h3 class="title">智慧农业管理系统</h3>
+      <h3 class="title">智慧农业远程监控平台</h3>
       <el-form-item prop="username">
         <el-input v-model="registerForm.userName" type="text" auto-complete="off" placeholder="账号">
           <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />

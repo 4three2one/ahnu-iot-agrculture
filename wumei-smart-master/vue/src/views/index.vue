@@ -1,169 +1,380 @@
 <template>
   <div class="app-container home">
-
-    <el-row :gutter="20">
-      <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>wumei-smart</h2>
-        <p><a href="http://www.wumei.live" target="_blank">智慧农业远程监控平台</a>是一套开源的软硬件系统，可用于二次开发和学习，快速搭建自己的智能家居系统。 硬件工程师可以把自己的设备集成到系统；软件工程师可以使用项目中的设备熟悉软硬件交互。</p>
-        <p>服务端使用spring boot、前端vue、移动端android、数据库mysql、硬件交互基于mqtt协议使用EMQ代理服务器。</p>
-
-        <p>
-          <el-button
-            type="primary"
-            size="mini"
-            icon="el-icon-cloudy"
-            plain
-            @click="goTarget('https://gitee.com/kerwincui/wumei-smart')"
-            >访问码云</el-button
-          >
-          <el-button
-            size="mini"
-            icon="el-icon-s-home"
-            plain
-            @click="goTarget('http://www.wumei.live/')"
-            >访问主页</el-button
-          >
-        </p>
-      </el-col>
-
-      <el-col :sm="24" :lg="12" style="padding-left: 50px">
-        <el-row>
-          <el-col :span="12">
-            <h2>技术选型</h2>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="6">
-            <h4>后端技术</h4>
-            <ul>
-              <li>SpringBoot</li>
-              <li>Spring Security</li>
-              <li>JWT</li>
-              <li>MyBatis</li>
-              <li>Druid</li>
-              <li>Fastjson</li>
-              <li>...</li>
-            </ul>
-          </el-col>
-          <el-col :span="6">
-            <h4>前端技术</h4>
-            <ul>
-              <li>Vue</li>
-              <li>Vuex</li>
-              <li>Element-ui</li>
-              <li>Axios</li>
-              <li>Sass</li>
-              <li>Quill</li>
-              <li>...</li>
-            </ul>
-          </el-col>
-                    <el-col :span="6">
-            <h4>安卓端技术</h4>
-            <ul>
-              <li>Xui</li>
-              <li>Xpage</li>
-              <li>XHttp2</li>
-              <li>XAOP</li>
-              <li>XUtil</li>
-              <li>XUpdate</li>
-              <li>...</li>
-            </ul>
-          </el-col>
-                    <el-col :span="6">
-            <h4>硬件端技术</h4>
-            <ul>
-              <li>ESP-IDF</li>
-              <li>Arduino</li>
-              <li>FreeRTOS</li>
-              <li>...</li>
-            </ul>
-          </el-col>
-        </el-row>
+    <el-row :gutter="40">
+      <el-col :span="14">
+        <el-card style="margin:-10px;" shadow="hover" body-style="background-color:#F8F8F8;">
+          <div ref = "map" style="height:650px;margin:-10px;margin-top:-5px;"></div>
+        </el-card>
       </el-col>
     </el-row>
-    <el-divider />
-
   </div>
 </template>
-
 <script>
-export default {
-  name: "index",
-  data() {
-    return {
-      // 版本号
-      version: "3.4.0",
-    };
-  },
-  methods: {
-    goTarget(href) {
-      window.open(href, "_blank");
+  import CountTo from 'vue-count-to'
+  import * as echarts from 'echarts';
+  require('echarts/theme/macarons') // echarts theme
+  import {
+    loadBMap
+  } from './map.js'
+  require('echarts/extension/bmap/bmap')
+  import {listGroup} from "../api/system/group";
+  export default {
+    name: "Index",
+    components: {
+      CountTo
     },
-  },
-};
+    data() {
+      return {
+        // 设备列表
+        deviceList: [],
+        // 设备总数
+        deviceCount:0,
+        // emqx状态数据
+        stats: {},
+        // emqx统计信息
+        static: {},
+        // 版本号
+        version: "3.8.0",
+        // 服务器信息
+        server: {
+          jvm: {
+            name: "",
+            version: "",
+            startTime: "",
+            runTime: "",
+            used: "",
+            total: 100
+          },
+          sys: {
+            computerName: "",
+            osName: "",
+            computerIp: "",
+            osArch: ""
+          },
+          cpu: {
+            cpuNum: 1
+          },
+          mem: {
+            total: 2
+          }
+        }
+      };
+    },
+    created() {
+      this.getAllDevice()
+    },
+    methods: {
+      getAllDevice() {
+        listGroup().then(response => {
+          this.deviceList = response.rows;
+          this.deviceCount=response.total;
+          this.$nextTick(() => {
+            loadBMap().then(() => {
+              this.getmap();
+            });
+          })
+        })
+      },
+      getmap() {
+        var myChart = echarts.init(this.$refs.map);
+        var option;
+        // 格式化数据
+        let convertData = function (data, status) {
+          var res = [];
+          for (var i = 0; i < data.length; i++) {
+            var geoCoord = [data[i].lat, data[i].lon];
+            if (geoCoord && data[i].status == status) {
+              res.push({
+                name:  data[i].groupName,
+                value: geoCoord,
+                status: data[i].status,
+                networkAddress:data[i].address,
+                activeTime: data[i].createTime
+              });
+            }
+          }
+          return res;
+        };
+        option = {
+          title: {
+            text: '设备分布和状态（数量 '+this.deviceCount+'）',
+            subtext: 'wumei-smart open source living iot platform',
+            sublink: 'https://iot.wumei.live',
+            target: "_blank",
+            textStyle: {
+              color: '#333',
+              textBorderColor: '#fff',
+              textBorderWidth: 10,
+            },
+            top: 10,
+            left: 'center'
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: function (params) {
+              var htmlStr = '<div style="padding:5px;line-height:28px;">';
+              htmlStr += "设备名称： <span style='color:#409EFF'>" + params.data.name + "</span><br />";
+              htmlStr += "设备状态： ";
+              if (params.data.status == 1) {
+                htmlStr += "<span style='color:#E6A23C'>未激活</span>" + "<br />";
+              } else if (params.data.status == 2) {
+                htmlStr += "<span style='color:#F56C6C'>禁用</span>" + "<br />";
+              } else if (params.data.status == 3) {
+                htmlStr += "<span style='color:#67C23A'>在线</span>" + "<br />";
+              } else if (params.data.status == 4) {
+                htmlStr += "<span style='color:#909399'>离线</span>" + "<br />";
+              }
+              htmlStr += "激活时间： " + params.data.activeTime + "<br />";
+              htmlStr += "所在地址： " + params.data.networkAddress + "<br />";
+              htmlStr += '</div>';
+              return htmlStr;
+            }
+
+          },
+          bmap: {
+            center: [133, 37],
+            zoom: 5,
+            roam: true,
+            mapStyle: {
+              styleJson: [{
+                featureType: 'water',
+                elementType: 'all',
+                stylers: {
+                  color: '#a0cfff'
+                }
+              },
+                {
+                  featureType: 'land',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#FFFFFF'
+                  }
+                },
+                {
+                  featureType: 'railway',
+                  elementType: 'all',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'highway',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#fdfdfd'
+                  }
+                },
+                {
+                  featureType: 'highway',
+                  elementType: 'labels',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'arterial',
+                  elementType: 'geometry',
+                  stylers: {
+                    color: '#fefefe'
+                  }
+                },
+                {
+                  featureType: 'arterial',
+                  elementType: 'geometry.fill',
+                  stylers: {
+                    color: '#fefefe'
+                  }
+                },
+                {
+                  featureType: 'poi',
+                  elementType: 'all',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'green',
+                  elementType: 'all',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'subway',
+                  elementType: 'all',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'manmade',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#d1d1d1'
+                  }
+                },
+                {
+                  featureType: 'local',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#d1d1d1'
+                  }
+                },
+                {
+                  featureType: 'arterial',
+                  elementType: 'labels',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'boundary',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#999999'
+                  }
+                },
+                {
+                  featureType: 'building',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#d1d1d1'
+                  }
+                },
+                {
+                  featureType: 'label',
+                  elementType: 'labels.text.fill',
+                  stylers: {
+                    color: '#999999'
+                  }
+                }
+              ]
+            }
+          },
+          series: [{
+            type: 'scatter',
+            coordinateSystem: 'bmap',
+            data: convertData(this.deviceList, 1),
+            symbolSize: 15,
+            itemStyle: {
+              color: '#E6A23C'
+            }
+          },
+            {
+              type: 'scatter',
+              coordinateSystem: 'bmap',
+              data: convertData(this.deviceList, 2),
+              symbolSize: 15,
+              itemStyle: {
+                color: '#F56C6C'
+              }
+            }, {
+              type: 'scatter',
+              coordinateSystem: 'bmap',
+              data: convertData(this.deviceList, 4),
+              symbolSize: 15,
+              itemStyle: {
+                color: '#909399'
+              }
+            }, {
+              type: 'effectScatter',
+              coordinateSystem: 'bmap',
+              data: convertData(this.deviceList, 3),
+              symbolSize: 15,
+              showEffectOn: 'render',
+              rippleEffect: {
+                brushType: 'stroke',
+                scale: 5
+              },
+              label: {
+                formatter: '{b}',
+                position: 'right',
+                show: false
+              },
+              itemStyle: {
+                color: '#67C23A',
+                shadowBlur: 100,
+                shadowColor: '#333'
+              },
+              zlevel: 1
+            }
+          ]
+        };
+
+        option && myChart.setOption(option);
+
+      }
+    },
+  }
 </script>
 
-<style scoped lang="scss">
-.home {
-  blockquote {
-    padding: 10px 20px;
-    margin: 0 0 20px;
-    font-size: 17.5px;
-    border-left: 5px solid #eee;
-  }
-  hr {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border: 0;
-    border-top: 1px solid #eee;
-  }
-  .col-item {
-    margin-bottom: 20px;
-  }
+<style lang="scss" scoped>
+  .panel-group {
+    .card-panel-col {
+      margin-bottom: 10px;
+    }
 
-  ul {
-    padding: 0;
-    margin: 0;
-  }
+    .card-panel {
+      height: 68px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      color: #666;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, .1);
 
-  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #676a6c;
-  overflow-x: hidden;
+      &:hover {
+        .card-panel-icon-wrapper {
+          color: #fff;
+        }
 
-  ul {
-    list-style-type: none;
-  }
+        .icon-message {
+          background: #36a3f7;
+        }
 
-  h4 {
-    margin-top: 0px;
-  }
+        .icon-shopping {
+          background: #34bfa3
+        }
+      }
 
-  h2 {
-    margin-top: 10px;
-    font-size: 26px;
-    font-weight: 100;
-  }
+      .icon-message {
+        color: #36a3f7;
+      }
 
-  p {
-    margin-top: 10px;
+      .icon-shopping {
+        color: #34bfa3
+      }
 
-    b {
-      font-weight: 700;
+      .card-panel-icon-wrapper {
+        float: left;
+        margin: 10px;
+        padding: 10px;
+        transition: all 0.38s ease-out;
+        border-radius: 6px;
+      }
+
+      .card-panel-icon {
+        float: left;
+        font-size: 32px;
+      }
+
+      .card-panel-description {
+        float: right;
+        font-weight: bold;
+        margin: 15px;
+        margin-left: 0px;
+
+        .card-panel-text {
+          line-height: 14px;
+          color: rgba(0, 0, 0, 0.45);
+          font-size: 14px;
+          margin-bottom: 12px;
+          text-align: right;
+        }
+
+        .card-panel-num {
+          font-size: 18px;
+        }
+      }
     }
   }
-
-  .update-log {
-    ol {
-      display: block;
-      list-style-type: decimal;
-      margin-block-start: 1em;
-      margin-block-end: 1em;
-      margin-inline-start: 0;
-      margin-inline-end: 0;
-      padding-inline-start: 40px;
-    }
-  }
-}
 </style>
-

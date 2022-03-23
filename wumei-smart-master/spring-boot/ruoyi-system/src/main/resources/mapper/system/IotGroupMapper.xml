@@ -15,10 +15,14 @@
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
         <result property="remark" column="remark"/>
+        <result property="lat" column="lat"/>
+        <result property="lon" column="lon"/>
+        <result property="address" column="address"/>
+        <result property="status" column="status"/>
     </resultMap>
 
     <sql id="selectIotGroupVo">
-        select group_id, user_id, group_name, group_order, del_flag, create_by, create_time, update_by, update_time,
+        select group_id, user_id, group_name, group_order, del_flag, create_by, create_time, update_by, update_time,lat,lon,address,status,
         remark from iot_group
     </sql>
 

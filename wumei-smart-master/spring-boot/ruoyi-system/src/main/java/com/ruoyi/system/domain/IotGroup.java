@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.ruoyi.system.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -21,6 +22,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author kerwincui
  * @date 2021-05-18
  */
+@Data
 public class IotGroup extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
@@ -51,6 +53,22 @@ public class IotGroup extends BaseEntity {
      * 删除标志（0代表存在 2代表删除）
      */
     private String delFlag;
+    /**
+     * 经度
+     */
+    private double lat;
+    /**
+     * 纬度
+     */
+    private double lon;
+    /**
+     * 地址
+     */
+    private String address;
+    /**
+     * 分组状态
+     */
+    private String status;
 
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
@@ -105,6 +123,10 @@ public class IotGroup extends BaseEntity {
                 .append("updateBy", getUpdateBy())
                 .append("updateTime", getUpdateTime())
                 .append("remark", getRemark())
+                .append("lat",getLat())
+                .append("lon",getLon())
+                .append("address",getAddress())
+                .append("status",getStatus())
                 .toString();
     }
 }
