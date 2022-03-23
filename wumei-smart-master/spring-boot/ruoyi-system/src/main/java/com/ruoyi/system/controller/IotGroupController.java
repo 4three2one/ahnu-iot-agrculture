@@ -12,6 +12,9 @@ package com.ruoyi.system.controller;
 
 import java.util.List;
 
+import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.utils.ServletUtils;
+import com.ruoyi.system.service.TokenServiceCopy;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,8 +46,13 @@ import com.ruoyi.common.core.page.TableDataInfo;
 @RestController
 @RequestMapping("/system/group")
 public class IotGroupController extends BaseController {
+
     @Autowired
     private IIotGroupService iotGroupService;
+
+    @Autowired
+    private TokenServiceCopy tokenServiceCopy;
+
 
     /**
      * 查询分组列表
@@ -89,6 +97,9 @@ public class IotGroupController extends BaseController {
     @Log(title = "分组", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody IotGroup iotGroup) {
+        LoginUser loginUser = tokenServiceCopy.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+        iotGroup.setUserId(userId);
         return toAjax(iotGroupService.insertIotGroup(iotGroup));
     }
 
