@@ -11,15 +11,15 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户" prop="userId">
-        <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入用户"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="用户" prop="userId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.userId"-->
+<!--          placeholder="请输入用户"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item label="分组名称" prop="groupName">
         <el-input
           v-model="queryParams.groupName"
@@ -95,9 +95,10 @@
 
     <el-table v-loading="loading" :data="groupList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="设备分组" align="center" prop="groupId" />
-      <el-table-column label="用户" align="center" prop="userId" />
+<!--      <el-table-column label="设备分组" align="center" prop="groupId" />-->
+<!--      <el-table-column label="用户" align="center" prop="userId" />-->
       <el-table-column label="分组名称" align="center" prop="groupName" />
+      <el-table-column label="地址" align="center" prop="address" />
       <el-table-column label="排序" align="center" prop="groupOrder" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
@@ -124,7 +125,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -136,12 +137,27 @@
     <!-- 添加或修改分组对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="用户" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户" />
-        </el-form-item>
+<!--        <el-form-item label="用户" prop="userId">-->
+<!--          <el-input v-model="form.userId" placeholder="请输入用户" />-->
+<!--        </el-form-item>-->
         <el-form-item label="分组名称" prop="groupName">
           <el-input v-model="form.groupName" placeholder="请输入分组名称" />
         </el-form-item>
+<!--        添加分组地址-->
+        <el-form-item label="经度" prop="longitude">
+          <el-input v-model="form.lon" placeholder="请输入设备经度" type="number" :disabled="form.isCustomLocation==0">
+            <el-link slot="append" :underline="false" href="https://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank">坐标拾取</el-link>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="纬度" prop="latitude">
+          <el-input v-model="form.lat" placeholder="请输入设备纬度" type="number" :disabled="form.isCustomLocation==0">
+            <el-link slot="append" :underline="false" href="https://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank">坐标拾取</el-link>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="地址" prop="networkAddress">
+          <el-input v-model="form.address" placeholder="请输入所在地址" :disabled="form.isCustomLocation==0" />
+        </el-form-item>
+<!--        -->
         <el-form-item label="排序" prop="groupOrder">
           <el-input v-model="form.groupOrder" placeholder="请输入排序" />
         </el-form-item>
@@ -198,9 +214,9 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        userId: [
-          { required: true, message: "用户不能为空", trigger: "blur" }
-        ],
+        // userId: [
+        //   { required: true, message: "用户不能为空", trigger: "blur" }
+        // ],
         groupName: [
           { required: true, message: "分组名称不能为空", trigger: "blur" }
         ],
@@ -242,7 +258,12 @@ export default {
         createTime: null,
         updateBy: null,
         updateTime: null,
-        remark: null
+        remark: null,
+      //  增加分组经纬度
+        lat:null,
+        lon:null,
+        address:null,
+        status:null
       };
       this.resetForm("form");
     },
