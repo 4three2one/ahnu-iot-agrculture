@@ -172,7 +172,7 @@
         let convertData = function (data, status) {
           var res = [];
           for (var i = 0; i < data.length; i++) {
-            var geoCoord = [data[i].lat, data[i].lon];
+            var geoCoord = [data[i].lon, data[i].lat];
             if (geoCoord && data[i].status == status) {
               res.push({
                 name:  data[i].groupName,
@@ -397,50 +397,60 @@
         // 基于准备好的dom，初始化echarts实例
         let myChart = echarts.init(this.$refs.statsChart);
         var option;
-
+        let base = +new Date(1988, 9, 3);
+        let oneDay = 24 * 3600 * 1000;
+        let data = [[base, Math.random() * 300]];
+        for (let i = 1; i < 20000; i++) {
+          let now = new Date((base += oneDay));
+          data.push([+now, Math.round((Math.random() - 0.5) * 20 + data[i - 1][1])]);
+        }
         option = {
-          title: {
-            text: 'Mqtt 状态数据'
-          },
           tooltip: {
             trigger: 'axis',
-            axisPointer: {
-              type: 'shadow'
+            position: function (pt) {
+              return [pt[0], '10%'];
             }
           },
-          legend: {},
-          grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
+          title: {
+            left: 'center',
+            text: 'Large Ara Chart'
+          },
+          toolbox: {
+            feature: {
+              dataZoom: {
+                yAxisIndex: 'none'
+              },
+              restore: {},
+              saveAsImage: {}
+            }
           },
           xAxis: {
-            type: 'value',
-            boundaryGap: [0, 0.01]
+            type: 'time',
+            boundaryGap: false
           },
           yAxis: {
-            type: 'category',
-            axisLabel: {
-              fontSize: 14
-            },
-            data: ['连接数量', '会话数量', '主题数量', '订阅数量', '路由数量', '保留消息']
+            type: 'value',
+            boundaryGap: [0, '100%']
           },
-          series: [{
-            name: '历史最大数',
-            type: 'bar',
-            data: [this.stats["connections.max"], this.stats["sessions.max"], this.stats["topics.max"], this.stats["subscribers.max"], this.stats["routes.max"], this.stats["retained.max"]],
-            itemStyle: {
-              color: '#409EFF'
-            }
-          },
+          dataZoom: [
             {
-              name: '当前数量',
-              type: 'bar',
-              data: [this.stats["connections.count"], this.stats["sessions.count"], this.stats["topics.count"], this.stats["subscribers.count"], this.stats["routes.count"], this.stats["retained.count"]],
-              itemStyle: {
-                color: '#67C23A'
-              }
+              type: 'inside',
+              start: 0,
+              end: 20
+            },
+            {
+              start: 0,
+              end: 20
+            }
+          ],
+          series: [
+            {
+              name: 'Fake Data',
+              type: 'line',
+              smooth: true,
+              symbol: 'none',
+              areaStyle: {},
+              data: data
             }
           ]
         };
