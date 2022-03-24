@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.IotThingsModelMapper">
+
+    <resultMap type="IotThingsModel" id="IotThingsModelResult">
+                    <result property="modelId" column="model_id"/>
+                    <result property="modelName" column="model_name"/>
+                    <result property="productId" column="product_id"/>
+                    <result property="productName" column="product_name"/>
+                    <result property="tenantId" column="tenant_id"/>
+                    <result property="tenantName" column="tenant_name"/>
+                    <result property="identifier" column="identifier"/>
+                    <result property="type" column="type"/>
+                    <result property="datatype" column="datatype"/>
+                    <result property="specs" column="specs"/>
+                    <result property="isTop" column="is_Top"/>
+                    <result property="isMonitor" column="is_Monitor"/>
+                    <result property="delFlag" column="del_flag"/>
+                    <result property="createBy" column="create_by"/>
+                    <result property="createTime" column="create_time"/>
+                    <result property="updateBy" column="update_by"/>
+                    <result property="updateTime" column="update_time"/>
+                    <result property="remark" column="remark"/>
+            </resultMap>
+    
+    <sql id="selectIotThingsModelVo">
+        select model_id, model_name, product_id, product_name, tenant_id, tenant_name, identifier, type, datatype, specs, is_Top, is_Monitor, del_flag, create_by, create_time, update_by, update_time, remark        from iot_things_model
+    </sql>
+
+    <select id="selectIotThingsModelList" parameterType="IotThingsModel" resultMap="IotThingsModelResult">
+        <include refid="selectIotThingsModelVo"/>
+        <where>
+                                                                                                    <if test="modelName != null  and modelName != ''">
+                            and model_name like concat('%', #{modelName}, '%')
+                        </if>
+                                                                                                            <if test="productId != null ">
+                            and product_id = #{productId}
+                        </if>
+                                                                                                            <if test="productName != null  and productName != ''">
+                            and product_name like concat('%', #{productName}, '%')
+                        </if>
+                                                                                                            <if test="tenantId != null ">
+                            and tenant_id = #{tenantId}
+                        </if>
+                                                                                                            <if test="tenantName != null  and tenantName != ''">
+                            and tenant_name like concat('%', #{tenantName}, '%')
+                        </if>
+                                                                                                            <if test="identifier != null  and identifier != ''">
+                            and identifier = #{identifier}
+                        </if>
+                                                                                                            <if test="type != null ">
+                            and type = #{type}
+                        </if>
+                                                                                                            <if test="datatype != null  and datatype != ''">
+                            and datatype = #{datatype}
+                        </if>
+                                                                                                            <if test="specs != null  and specs != ''">
+                            and specs = #{specs}
+                        </if>
+                                                                                                            <if test="isTop != null ">
+                            and is_Top = #{isTop}
+                        </if>
+                                                                                                            <if test="isMonitor != null ">
+                            and is_Monitor = #{isMonitor}
+                        </if>
+                                                                                                                                                                                                                                </where>
+    </select>
+
+    <select id="selectIotThingsModelById" parameterType="Long"
+            resultMap="IotThingsModelResult">
+                    <include refid="selectIotThingsModelVo"/>
+            where model_id = #{modelId}
+            </select>
+
+    <insert id="insertIotThingsModel" parameterType="IotThingsModel" useGeneratedKeys="true"
+            keyProperty="modelId">
+        insert into iot_things_model
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                                                                            <if test="modelName != null and modelName != ''">model_name,
+                    </if>
+                                                                <if test="productId != null">product_id,
+                    </if>
+                                                                <if test="productName != null and productName != ''">product_name,
+                    </if>
+                                                                <if test="tenantId != null">tenant_id,
+                    </if>
+                                                                <if test="tenantName != null and tenantName != ''">tenant_name,
+                    </if>
+                                                                <if test="identifier != null and identifier != ''">identifier,
+                    </if>
+                                                                <if test="type != null">type,
+                    </if>
+                                                                <if test="datatype != null and datatype != ''">datatype,
+                    </if>
+                                                                <if test="specs != null and specs != ''">specs,
+                    </if>
+                                                                <if test="isTop != null">is_Top,
+                    </if>
+                                                                <if test="isMonitor != null">is_Monitor,
+                    </if>
+                                                                <if test="delFlag != null">del_flag,
+                    </if>
+                                                                <if test="createBy != null">create_by,
+                    </if>
+                                                                <if test="createTime != null">create_time,
+                    </if>
+                                                                <if test="updateBy != null">update_by,
+                    </if>
+                                                                <if test="updateTime != null">update_time,
+                    </if>
+                                                                <if test="remark != null">remark,
+                    </if>
+                                    </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                                                                            <if test="modelName != null and modelName != ''">#{modelName},
+                    </if>
+                                                                <if test="productId != null">#{productId},
+                    </if>
+                                                                <if test="productName != null and productName != ''">#{productName},
+                    </if>
+                                                                <if test="tenantId != null">#{tenantId},
+                    </if>
+                                                                <if test="tenantName != null and tenantName != ''">#{tenantName},
+                    </if>
+                                                                <if test="identifier != null and identifier != ''">#{identifier},
+                    </if>
+                                                                <if test="type != null">#{type},
+                    </if>
+                                                                <if test="datatype != null and datatype != ''">#{datatype},
+                    </if>
+                                                                <if test="specs != null and specs != ''">#{specs},
+                    </if>
+                                                                <if test="isTop != null">#{isTop},
+                    </if>
+                                                                <if test="isMonitor != null">#{isMonitor},
+                    </if>
+                                                                <if test="delFlag != null">#{delFlag},
+                    </if>
+                                                                <if test="createBy != null">#{createBy},
+                    </if>
+                                                                <if test="createTime != null">#{createTime},
+                    </if>
+                                                                <if test="updateBy != null">#{updateBy},
+                    </if>
+                                                                <if test="updateTime != null">#{updateTime},
+                    </if>
+                                                                <if test="remark != null">#{remark},
+                    </if>
+                                    </trim>
+    </insert>
+
+    <update id="updateIotThingsModel" parameterType="IotThingsModel">
+        update iot_things_model
+        <trim prefix="SET" suffixOverrides=",">
+                                                                            <if test="modelName != null and modelName != ''">model_name =
+                        #{modelName},
+                    </if>
+                                                                <if test="productId != null">product_id =
+                        #{productId},
+                    </if>
+                                                                <if test="productName != null and productName != ''">product_name =
+                        #{productName},
+                    </if>
+                                                                <if test="tenantId != null">tenant_id =
+                        #{tenantId},
+                    </if>
+                                                                <if test="tenantName != null and tenantName != ''">tenant_name =
+                        #{tenantName},
+                    </if>
+                                                                <if test="identifier != null and identifier != ''">identifier =
+                        #{identifier},
+                    </if>
+                                                                <if test="type != null">type =
+                        #{type},
+                    </if>
+                                                                <if test="datatype != null and datatype != ''">datatype =
+                        #{datatype},
+                    </if>
+                                                                <if test="specs != null and specs != ''">specs =
+                        #{specs},
+                    </if>
+                                                                <if test="isTop != null">is_Top =
+                        #{isTop},
+                    </if>
+                                                                <if test="isMonitor != null">is_Monitor =
+                        #{isMonitor},
+                    </if>
+                                                                <if test="delFlag != null">del_flag =
+                        #{delFlag},
+                    </if>
+                                                                <if test="createBy != null">create_by =
+                        #{createBy},
+                    </if>
+                                                                <if test="createTime != null">create_time =
+                        #{createTime},
+                    </if>
+                                                                <if test="updateBy != null">update_by =
+                        #{updateBy},
+                    </if>
+                                                                <if test="updateTime != null">update_time =
+                        #{updateTime},
+                    </if>
+                                                                <if test="remark != null">remark =
+                        #{remark},
+                    </if>
+                                    </trim>
+        where model_id = #{modelId}
+    </update>
+
+    <delete id="deleteIotThingsModelById" parameterType="Long">
+        delete from iot_things_model where model_id = #{modelId}
+    </delete>
+
+    <delete id="deleteIotThingsModelByIds" parameterType="String">
+        delete from iot_things_model where model_id in
+        <foreach item="modelId" collection="array" open="(" separator="," close=")">
+            #{modelId}
+        </foreach>
+    </delete>
+    </mapper>

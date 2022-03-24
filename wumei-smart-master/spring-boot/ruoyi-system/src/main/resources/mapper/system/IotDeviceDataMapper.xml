@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.IotDeviceDataMapper">
+
+    <resultMap type="IotDeviceData" id="IotDeviceDataResult">
+                    <result property="id" column="id"/>
+                    <result property="deviceId" column="device_id"/>
+                    <result property="modelId" column="model_id"/>
+                    <result property="modelData" column="model_data"/>
+                    <result property="delFlag" column="del_flag"/>
+                    <result property="status" column="status"/>
+                    <result property="createTime" column="create_time"/>
+                    <result property="thingsModelValue" column="things_model_value"/>
+            </resultMap>
+    
+    <sql id="selectIotDeviceDataVo">
+        select id, device_id, model_id, model_data, del_flag, status, create_time, things_model_value        from iot_device_data
+    </sql>
+
+    <select id="selectIotDeviceDataList" parameterType="IotDeviceData" resultMap="IotDeviceDataResult">
+        <include refid="selectIotDeviceDataVo"/>
+        <where>
+                                                                                                    <if test="deviceId != null ">
+                            and device_id = #{deviceId}
+                        </if>
+                                                                                                            <if test="modelId != null ">
+                            and model_id = #{modelId}
+                        </if>
+                                                                                                            <if test="modelData != null ">
+                            and model_data = #{modelData}
+                        </if>
+                                                                                                                                        <if test="status != null  and status != ''">
+                            and status = #{status}
+                        </if>
+                                                                                                                                        <if test="thingsModelValue != null  and thingsModelValue != ''">
+                            and things_model_value = #{thingsModelValue}
+                        </if>
+                                                        </where>
+    </select>
+
+    <select id="selectIotDeviceDataById" parameterType="Long"
+            resultMap="IotDeviceDataResult">
+                    <include refid="selectIotDeviceDataVo"/>
+            where id = #{id}
+            </select>
+
+    <insert id="insertIotDeviceData" parameterType="IotDeviceData" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into iot_device_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                                                                            <if test="deviceId != null">device_id,
+                    </if>
+                                                                <if test="modelId != null">model_id,
+                    </if>
+                                                                <if test="modelData != null">model_data,
+                    </if>
+                                                                <if test="delFlag != null">del_flag,
+                    </if>
+                                                                <if test="status != null">status,
+                    </if>
+                                                                <if test="createTime != null">create_time,
+                    </if>
+                                                                <if test="thingsModelValue != null">things_model_value,
+                    </if>
+                                    </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                                                                            <if test="deviceId != null">#{deviceId},
+                    </if>
+                                                                <if test="modelId != null">#{modelId},
+                    </if>
+                                                                <if test="modelData != null">#{modelData},
+                    </if>
+                                                                <if test="delFlag != null">#{delFlag},
+                    </if>
+                                                                <if test="status != null">#{status},
+                    </if>
+                                                                <if test="createTime != null">#{createTime},
+                    </if>
+                                                                <if test="thingsModelValue != null">#{thingsModelValue},
+                    </if>
+                                    </trim>
+    </insert>
+
+    <update id="updateIotDeviceData" parameterType="IotDeviceData">
+        update iot_device_data
+        <trim prefix="SET" suffixOverrides=",">
+                                                                            <if test="deviceId != null">device_id =
+                        #{deviceId},
+                    </if>
+                                                                <if test="modelId != null">model_id =
+                        #{modelId},
+                    </if>
+                                                                <if test="modelData != null">model_data =
+                        #{modelData},
+                    </if>
+                                                                <if test="delFlag != null">del_flag =
+                        #{delFlag},
+                    </if>
+                                                                <if test="status != null">status =
+                        #{status},
+                    </if>
+                                                                <if test="createTime != null">create_time =
+                        #{createTime},
+                    </if>
+                                                                <if test="thingsModelValue != null">things_model_value =
+                        #{thingsModelValue},
+                    </if>
+                                    </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteIotDeviceDataById" parameterType="Long">
+        delete from iot_device_data where id = #{id}
+    </delete>
+
+    <delete id="deleteIotDeviceDataByIds" parameterType="String">
+        delete from iot_device_data where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    </mapper>
