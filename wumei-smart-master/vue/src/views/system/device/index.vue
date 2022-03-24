@@ -50,24 +50,24 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="固件版本" prop="firmwareVersion">
-        <el-input
-          v-model="queryParams.firmwareVersion"
-          placeholder="请输入固件版本"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="用户" prop="ownerId">
-        <el-input
-          v-model="queryParams.ownerId"
-          placeholder="请输入用户"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="固件版本" prop="firmwareVersion">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.firmwareVersion"-->
+<!--          placeholder="请输入固件版本"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="用户" prop="ownerId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.ownerId"-->
+<!--          placeholder="请输入用户"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="daterangeCreateTime"
@@ -282,6 +282,10 @@
     <!-- 添加或修改设备对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+
+        <el-form-item label="名称" prop="deviceName">
+          <el-input v-model="form.deviceName" placeholder="请输入名称" />
+        </el-form-item>
         <el-form-item label="编号" prop="deviceNum">
           <el-input
             v-model="form.deviceNum"
@@ -299,16 +303,30 @@
               :value="category.categoryId"
             />
           </el-select>
+
         </el-form-item>
-        <el-form-item label="固件版本" prop="firmwareVersion">
-          <el-input
-            v-model="form.firmwareVersion"
-            placeholder="请输入固件版本,例如1.0"
-          />
+
+        <el-form-item label="分组" prop="categoryId">
+          <el-select
+            v-model="form.groupId"
+          >
+            <el-option
+              v-for="group in groupList"
+              :key="group.groupId"
+              :label="group.groupName"
+              :value="group.groupId"
+            />
+          </el-select>
+
         </el-form-item>
-        <el-form-item label="名称" prop="deviceName">
-          <el-input v-model="form.deviceName" placeholder="请输入名称" />
-        </el-form-item>
+
+<!--        <el-form-item label="固件版本" prop="firmwareVersion">-->
+<!--          <el-input-->
+<!--            v-model="form.firmwareVersion"-->
+<!--            placeholder="请输入固件版本,例如1.0"-->
+<!--          />-->
+<!--        </el-form-item>-->
+
         <el-form-item label="备注" prop="remark">
           <el-input
             v-model="form.remark"
@@ -318,7 +336,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>        
+        <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -573,7 +591,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-        </el-row>     
+        </el-row>
 
         <el-divider content-position="center"/>
                 <el-form-item label="重启" prop="isReset">
@@ -636,6 +654,7 @@ import {
 import { getNewStatus, updateStatus } from "@/api/system/status";
 import { getNewSet, updateSet } from "@/api/system/set";
 import { listCategory } from "@/api/system/category";
+import { listGroup } from "@/api/system/category";
 
 export default {
   name: "Device",
@@ -668,6 +687,8 @@ export default {
       daterangeCreateTime: [],
       // 分类
       categoryList: [],
+      // 分组数据
+      groupList: [],
       // 继电器字典
       openCloseOptions: [
         {
@@ -705,7 +726,7 @@ export default {
       triggerSourceOptions: [],
       // 彩灯模式字典
       lightModeOptions: [],
-      
+
       // 按键字典
       rfFuncOptions: [],
       // 创建时间时间范围
@@ -745,6 +766,7 @@ export default {
   },
   created() {
     this.getCategoryList();
+    this.getGroupList();
     this.getList();
     this.getDicts("iot_trigger_source").then(response => {
       this.triggerSourceOptions = response.data;
@@ -799,6 +821,13 @@ export default {
       }
       return name;
     },
+    // 查询当前登录用户的设备分组
+    getGroupList() {
+      listGroup(this.queryGroupParams).then(response => {
+        this.groupList = response.rows;
+      });
+    },
+
     // 触发源字典翻译
     triggerSourceFormat(row, column) {
       return this.selectDictLabel(this.triggerSourceOptions, row.triggerSource);
@@ -826,6 +855,7 @@ export default {
         deviceId: null,
         deviceNum: null,
         categoryId: null,
+        groupId: null,
         deviceName: null,
         firmwareVersion: null,
         ownerId: null,
@@ -979,7 +1009,7 @@ export default {
               if(!isApply){
                 this.statusOpen = false;
                 this.getList();
-              }              
+              }
             });
           }
         }
@@ -995,7 +1025,7 @@ export default {
               if(!isApply){
                 this.setOpen = false;
                 this.getList();
-              }              
+              }
             });
           }
         }

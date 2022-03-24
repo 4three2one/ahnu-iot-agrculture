@@ -18,6 +18,14 @@ export function listCategory(query) {
     params: query
   })
 }
+// 查询当前登录用户设备分组列表
+export function listGroup(query) {
+  return request({
+    url: '/system/group/listOfLoginUser',
+    method: 'get',
+    params: query
+  })
+}
 
 // 查询设备分类详细
 export function getCategory(categoryId) {
