@@ -6,6 +6,95 @@
           <div ref = "map" style="height:650px;margin:-10px;margin-top:-5px;"></div>
         </el-card>
       </el-col>
+      <el-col :span="10">
+        <el-card style="margin:-10px;" shadow="hover">
+          <h3 style="font-weight:bold">大棚环境数据</h3>
+          <el-row :gutter="40" class="panel-group">
+            <el-col :span="12" class="card-panel-col">
+              <div class="card-panel">
+                <div class="card-panel-icon-wrapper icon-message">
+                  <svg-icon icon-class="air_temp" class-name="card-panel-icon" />
+                </div>
+                <div class="card-panel-description">
+                  <div class="card-panel-text">
+                    空气温度
+                  </div>
+                  <count-to :start-val="0" :end-val="this.static['bytes.sent']" :duration="3000" class="card-panel-num" />
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="12" class="card-panel-col">
+              <div class="card-panel">
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <svg-icon icon-class="air_hump" class-name="card-panel-icon" />
+                </div>
+                <div class="card-panel-description">
+                  <div class="card-panel-text">
+                    空气湿度
+                  </div>
+                  <count-to :start-val="0" :end-val="this.static['bytes.received']" :duration="3000" class="card-panel-num" />
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="12" class="card-panel-col">
+              <div class="card-panel">
+                <div class="card-panel-icon-wrapper icon-message">
+                  <svg-icon icon-class="light" class-name="card-panel-icon" />
+                </div>
+                <div class="card-panel-description">
+                  <div class="card-panel-text">
+                    光照强度
+                  </div>
+                  <count-to :start-val="0" :end-val="this.static['client.authenticate']" :duration="1000" class="card-panel-num" />
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="12" class="card-panel-col">
+              <div class="card-panel">
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <svg-icon icon-class="CO2" class-name="card-panel-icon" />
+                </div>
+                <div class="card-panel-description">
+                  <div class="card-panel-text">
+                    CO2浓度
+                  </div>
+                  <count-to :start-val="0" :end-val="this.static['client.connected']" :duration="1000" class="card-panel-num" />
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="12" class="card-panel-col">
+              <div class="card-panel">
+                <div class="card-panel-icon-wrapper icon-message">
+                  <svg-icon icon-class="H2S" class-name="card-panel-icon" />
+                </div>
+                <div class="card-panel-description">
+                  <div class="card-panel-text">
+                    H2S浓度
+                  </div>
+                  <count-to :start-val="0" :end-val="this.static['client.subscribe']" :duration="2000" class="card-panel-num" />
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="12" class="card-panel-col">
+              <div class="card-panel">
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <svg-icon icon-class="NH3" class-name="card-panel-icon" />
+                </div>
+                <div class="card-panel-description">
+                  <div class="card-panel-text">
+                    NH3浓度
+                  </div>
+                  <count-to :start-val="0" :end-val="this.static['messages.received']" :duration="2000" class="card-panel-num" />
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
+        <el-card style="margin:-10px;margin-top:20px;" shadow="hover">
+          <div ref="statsChart" style="height:296px;"></div>
+        </el-card>
+      </el-col>
+
     </el-row>
   </div>
 </template>
@@ -71,6 +160,7 @@
           this.$nextTick(() => {
             loadBMap().then(() => {
               this.getmap();
+              this.drawStats();
             });
           })
         })
@@ -99,7 +189,6 @@
           title: {
             text: '设备分布和状态（数量 '+this.deviceCount+'）',
             subtext: 'wumei-smart open source living iot platform',
-            sublink: 'https://iot.wumei.live',
             target: "_blank",
             textStyle: {
               color: '#333',
@@ -303,7 +392,60 @@
 
         option && myChart.setOption(option);
 
-      }
+      },
+      drawStats() {
+        // 基于准备好的dom，初始化echarts实例
+        let myChart = echarts.init(this.$refs.statsChart);
+        var option;
+
+        option = {
+          title: {
+            text: 'Mqtt 状态数据'
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {},
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'value',
+            boundaryGap: [0, 0.01]
+          },
+          yAxis: {
+            type: 'category',
+            axisLabel: {
+              fontSize: 14
+            },
+            data: ['连接数量', '会话数量', '主题数量', '订阅数量', '路由数量', '保留消息']
+          },
+          series: [{
+            name: '历史最大数',
+            type: 'bar',
+            data: [this.stats["connections.max"], this.stats["sessions.max"], this.stats["topics.max"], this.stats["subscribers.max"], this.stats["routes.max"], this.stats["retained.max"]],
+            itemStyle: {
+              color: '#409EFF'
+            }
+          },
+            {
+              name: '当前数量',
+              type: 'bar',
+              data: [this.stats["connections.count"], this.stats["sessions.count"], this.stats["topics.count"], this.stats["subscribers.count"], this.stats["routes.count"], this.stats["retained.count"]],
+              itemStyle: {
+                color: '#67C23A'
+              }
+            }
+          ]
+        };
+        option && myChart.setOption(option);
+      },
     },
   }
 </script>
