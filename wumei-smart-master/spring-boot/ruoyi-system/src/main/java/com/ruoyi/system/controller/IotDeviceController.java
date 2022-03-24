@@ -11,14 +11,18 @@
 package com.ruoyi.system.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.CustomException;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.system.domain.IotDeviceGroup;
 import com.ruoyi.system.domain.vo.DeviceControlCMD;
 import com.ruoyi.system.domain.vo.IotDeviceListDto;
+import com.ruoyi.system.service.IIotGroupService;
+import com.ruoyi.system.service.impl.IotDeviceGroupServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,6 +54,9 @@ public class IotDeviceController extends BaseController {
     @Autowired
     private IIotDeviceService iotDeviceService;
 
+    @Autowired
+    private IotDeviceGroupServiceImpl iotDeviceGroupService;
+
     /**
      * 查询设备列表
      */
@@ -64,6 +71,26 @@ public class IotDeviceController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 通过组id查询设备列表
+     */
+    @ApiOperation(value = "设备列表", notes = "设备列表")
+    @PreAuthorize("@ss.hasPermi('system:device:list')")
+    @GetMapping("/listDeviceByGroupId/{groupId}")
+    public TableDataInfo listDeviceByGroupId(@PathVariable("groupId") long groupId) {
+        IotDeviceGroup iotDeviceGroup = new IotDeviceGroup();
+        IotDevice iotDevice = new IotDevice();
+        iotDeviceGroup.setGroupId(groupId);
+        startPage();
+        LoginUser user = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        iotDevice.setOwnerId(user.getUser().getUserId().toString());
+        List<IotDeviceGroup> deviceList = iotDeviceGroupService.selectIotDeviceGroupList(iotDeviceGroup);
+        List<IotDevice> iotDeviceLists = new ArrayList<>();
+        for(int i = 0;i < deviceList.size();i++){
+            iotDeviceLists.add(iotDeviceService.selectIotDeviceById(deviceList.get(i).getDeviceId()));
+        }
+        return getDataTable(iotDeviceLists);
+    }
 
 
     /**

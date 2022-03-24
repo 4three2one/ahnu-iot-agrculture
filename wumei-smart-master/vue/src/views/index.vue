@@ -8,7 +8,16 @@
       </el-col>
       <el-col :span="10">
         <el-card style="margin:-10px;" shadow="hover">
-          <h3 style="font-weight:bold">大棚环境数据</h3>
+          <h3 style="font-weight:bold;display: inline">大棚环境数据</h3>
+          <el-dropdown style = "margin: 10px">
+            <el-button type="primary">
+              选择设备<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-for="device in deviceList"
+                                v-text="device.deviceName+device.categoryName"/>
+            </el-dropdown-menu>
+          </el-dropdown>
           <el-row :gutter="40" class="panel-group">
             <el-col :span="12" class="card-panel-col">
               <div class="card-panel">
@@ -19,7 +28,7 @@
                   <div class="card-panel-text">
                     空气温度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['bytes.sent']" :duration="3000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.static['']" :duration="3000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -32,7 +41,7 @@
                   <div class="card-panel-text">
                     空气湿度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['bytes.received']" :duration="3000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.static['']" :duration="3000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -45,7 +54,7 @@
                   <div class="card-panel-text">
                     光照强度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['client.authenticate']" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.static['']" :duration="1000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -58,7 +67,7 @@
                   <div class="card-panel-text">
                     CO2浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['client.connected']" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.static['']" :duration="1000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -71,7 +80,7 @@
                   <div class="card-panel-text">
                     H2S浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['client.subscribe']" :duration="2000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.static['']" :duration="2000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -84,7 +93,7 @@
                   <div class="card-panel-text">
                     NH3浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['messages.received']" :duration="2000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.static['']" :duration="2000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -106,7 +115,8 @@
     loadBMap
   } from './map.js'
   require('echarts/extension/bmap/bmap')
-  import {listGroup} from "../api/system/group";
+  import {listGroup, listGroupById} from "../api/system/group";
+  import {listDeviceByGroupId} from "../api/system/device";
   export default {
     name: "Index",
     components: {
@@ -114,6 +124,10 @@
     },
     data() {
       return {
+        // 分组列表
+        groupList: [],
+        // 分组总数
+        groupCount:0,
         // 设备列表
         deviceList: [],
         // 设备总数
@@ -125,28 +139,7 @@
         // 版本号
         version: "3.8.0",
         // 服务器信息
-        server: {
-          jvm: {
-            name: "",
-            version: "",
-            startTime: "",
-            runTime: "",
-            used: "",
-            total: 100
-          },
-          sys: {
-            computerName: "",
-            osName: "",
-            computerIp: "",
-            osArch: ""
-          },
-          cpu: {
-            cpuNum: 1
-          },
-          mem: {
-            total: 2
-          }
-        }
+
       };
     },
     created() {
@@ -154,9 +147,9 @@
     },
     methods: {
       getAllDevice() {
-        listGroup().then(response => {
-          this.deviceList = response.rows;
-          this.deviceCount=response.total;
+        listGroupById().then(response => {
+          this.groupList = response.rows;
+          this.groupCount=response.total;
           this.$nextTick(() => {
             loadBMap().then(() => {
               this.getmap();
@@ -175,6 +168,7 @@
             var geoCoord = [data[i].lon, data[i].lat];
             if (geoCoord && data[i].status == status) {
               res.push({
+                id: data[i].groupId,
                 name:  data[i].groupName,
                 value: geoCoord,
                 status: data[i].status,
@@ -187,8 +181,7 @@
         };
         option = {
           title: {
-            text: '设备分布和状态（数量 '+this.deviceCount+'）',
-            subtext: 'wumei-smart open source living iot platform',
+            text: '设备分布和状态（数量 '+this.groupCount+'）',
             target: "_blank",
             textStyle: {
               color: '#333',
@@ -202,6 +195,7 @@
             trigger: 'item',
             formatter: function (params) {
               var htmlStr = '<div style="padding:5px;line-height:28px;">';
+              htmlStr += "设备编号： <span style='color:#409EFF'>" + params.data.id + "</span><br />";
               htmlStr += "设备名称： <span style='color:#409EFF'>" + params.data.name + "</span><br />";
               htmlStr += "设备状态： ";
               if (params.data.status == 1) {
@@ -343,7 +337,7 @@
           series: [{
             type: 'scatter',
             coordinateSystem: 'bmap',
-            data: convertData(this.deviceList, 1),
+            data: convertData(this.groupList, 1),
             symbolSize: 15,
             itemStyle: {
               color: '#E6A23C'
@@ -352,7 +346,7 @@
             {
               type: 'scatter',
               coordinateSystem: 'bmap',
-              data: convertData(this.deviceList, 2),
+              data: convertData(this.groupList, 2),
               symbolSize: 15,
               itemStyle: {
                 color: '#F56C6C'
@@ -360,7 +354,7 @@
             }, {
               type: 'scatter',
               coordinateSystem: 'bmap',
-              data: convertData(this.deviceList, 4),
+              data: convertData(this.groupList, 4),
               symbolSize: 15,
               itemStyle: {
                 color: '#909399'
@@ -368,7 +362,7 @@
             }, {
               type: 'effectScatter',
               coordinateSystem: 'bmap',
-              data: convertData(this.deviceList, 3),
+              data: convertData(this.groupList, 3),
               symbolSize: 15,
               showEffectOn: 'render',
               rippleEffect: {
@@ -391,6 +385,13 @@
         };
 
         option && myChart.setOption(option);
+        var _this = this;
+        myChart.on('click',function (params) {
+            listDeviceByGroupId(params.data.id).then(response => {
+              _this.deviceList = response.rows;
+              _this.deviceCount=response.total;
+            });
+        })
 
       },
       drawStats() {

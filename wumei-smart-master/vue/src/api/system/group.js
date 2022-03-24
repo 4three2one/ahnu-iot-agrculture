@@ -18,6 +18,14 @@ export function listGroup(query) {
     params: query
   })
 }
+// 通过id查询分组列表
+export function listGroupById(query) {
+  return request({
+    url: '/system/group/listById',
+    method: 'get',
+    params: query
+  })
+}
 
 // 查询分组详细
 export function getGroup(groupId) {

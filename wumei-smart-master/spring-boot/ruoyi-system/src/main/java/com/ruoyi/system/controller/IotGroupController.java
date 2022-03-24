@@ -66,6 +66,20 @@ public class IotGroupController extends BaseController {
         return getDataTable(list);
     }
 
+    @ApiOperation(value = "分组列表", notes = "分组列表")
+    @PreAuthorize("@ss.hasPermi('system:group:list')")
+    @GetMapping("/listById")
+    public TableDataInfo listById(IotGroup iotGroup) {
+        LoginUser loginUser = tokenServiceCopy.getLoginUser(ServletUtils.getRequest());
+        if(!loginUser.getUser().isAdmin()) {
+            Long userId = loginUser.getUser().getUserId();
+            iotGroup.setUserId(userId);
+        }
+        startPage();
+        List<IotGroup> list = iotGroupService.selectIotGroupList(iotGroup);
+        return getDataTable(list);
+    }
+
     /**
      * 导出分组列表
      */
