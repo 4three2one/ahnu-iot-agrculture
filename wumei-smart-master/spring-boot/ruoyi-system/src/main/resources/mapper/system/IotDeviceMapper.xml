@@ -9,6 +9,8 @@
         <result property="deviceNum" column="device_num"/>
         <result property="categoryId" column="category_id"/>
         <result property="categoryName" column="category_Name"/>
+        <!--添加设备分组-->
+        <result property="groupId" column="group_id"/>
         <result property="deviceTemp" column="device_temp"/>
         <result property="deviceName" column="device_name"/>
         <result property="firmwareVersion" column="firmware_version"/>
@@ -26,6 +28,9 @@
         <result property="deviceNum" column="device_num"/>
         <result property="categoryId" column="category_id"/>
         <result property="categoryName" column="category_Name"/>
+        <!--添加设备分组-->
+        <result property="groupId" column="group_id"/>
+
         <result property="deviceName" column="device_name"/>
         <result property="firmwareVersion" column="firmware_version"/>
         <result property="ownerId" column="owner_id"/>
@@ -50,7 +55,8 @@
 
 
     <sql id="selectIotDeviceVo">
-        select d.device_id, d.device_num, d.category_id, d.device_name, d.firmware_version, d.owner_id,d.status, d.create_by,
+<!--        增加gourpID-->
+        select d.device_id, d.device_num, d.category_id,d.group_id,  d.device_name, d.firmware_version, d.owner_id,d.status, d.create_by,
         d.create_time, d.update_by, d.update_time, d.remark,
         c.category_name,
         s.device_temperature as device_temp
@@ -164,6 +170,8 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="deviceNum != null and deviceNum != ''">device_num,</if>
             <if test="categoryId != null">category_id,</if>
+            <!--添加设备分组-->
+            <if test="groupId != null">group_id,</if>
             <if test="deviceName != null and deviceName != ''">device_name,</if>
             <if test="firmwareVersion != null">firmware_version,</if>
             <if test="ownerId != null">owner_id,</if>
@@ -178,6 +186,8 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="deviceNum != null and deviceNum != ''">#{deviceNum},</if>
             <if test="categoryId != null">#{categoryId},</if>
+            <!--添加设备分组-->
+            <if test="groupId != null">#{groupId},</if>
             <if test="deviceName != null and deviceName != ''">#{deviceName},</if>
             <if test="firmwareVersion != null">#{firmwareVersion},</if>
             <if test="ownerId != null">#{ownerId},</if>
@@ -195,6 +205,8 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="deviceNum != null and deviceNum != ''">device_num = #{deviceNum},</if>
             <if test="categoryId != null">category_id = #{categoryId},</if>
+            <!--添加设备分组-->
+            <if test="groupId != null">group_id = #{groupId},</if>
             <if test="deviceName != null and deviceName != ''">device_name = #{deviceName},</if>
             <if test="firmwareVersion != null">firmware_version = #{firmwareVersion},</if>
             <if test="ownerId != null">owner_id = #{ownerId},</if>

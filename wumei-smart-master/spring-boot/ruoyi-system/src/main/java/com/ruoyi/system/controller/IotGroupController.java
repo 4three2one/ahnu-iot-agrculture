@@ -138,4 +138,17 @@ public class IotGroupController extends BaseController {
     public AjaxResult remove(@PathVariable Long[] groupIds) {
         return toAjax(iotGroupService.deleteIotGroupByIds(groupIds));
     }
+
+    /**
+     * 查询当前登录用户的分组列表
+     */
+    @GetMapping("/listOfLoginUser")
+    public TableDataInfo listOfUser(IotGroup iotGroup) {
+        startPage();
+        LoginUser loginUser = tokenServiceCopy.getLoginUser(ServletUtils.getRequest());
+        Long userId = loginUser.getUser().getUserId();
+        iotGroup.setUserId(userId);
+        List<IotGroup> list = iotGroupService.selectIotGroupList(iotGroup);
+        return getDataTable(list);
+    }
 }
