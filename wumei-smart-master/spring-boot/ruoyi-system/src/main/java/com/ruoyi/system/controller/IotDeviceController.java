@@ -12,17 +12,22 @@ package com.ruoyi.system.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.CustomException;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.system.domain.IotDeviceData;
 import com.ruoyi.system.domain.IotDeviceGroup;
+import com.ruoyi.system.domain.IotThingsModel;
 import com.ruoyi.system.domain.vo.DeviceControlCMD;
 import com.ruoyi.system.domain.vo.IotDeviceListDto;
 import com.ruoyi.system.service.IIotGroupService;
+import com.ruoyi.system.service.impl.IotDeviceDataServiceImpl;
 import com.ruoyi.system.service.impl.IotDeviceGroupServiceImpl;
+import com.ruoyi.system.service.impl.IotThingsModelServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,6 +62,11 @@ public class IotDeviceController extends BaseController {
     @Autowired
     private IotDeviceGroupServiceImpl iotDeviceGroupService;
 
+    @Autowired
+    private IotDeviceDataServiceImpl iotDeviceDataService;
+
+    @Autowired
+    private IotThingsModelServiceImpl iotThingsModelService;
     /**
      * 查询设备列表
      */
@@ -78,21 +88,43 @@ public class IotDeviceController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:device:list')")
     @GetMapping("/listDeviceByGroupId/{groupId}")
     public TableDataInfo listDeviceByGroupId(@PathVariable("groupId") long groupId) {
-        IotDeviceGroup iotDeviceGroup = new IotDeviceGroup();
         IotDevice iotDevice = new IotDevice();
-        iotDeviceGroup.setGroupId(groupId);
+        iotDevice.setGroupId(groupId);
         startPage();
         LoginUser user = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         iotDevice.setOwnerId(user.getUser().getUserId().toString());
-        List<IotDeviceGroup> deviceList = iotDeviceGroupService.selectIotDeviceGroupList(iotDeviceGroup);
-        List<IotDevice> iotDeviceLists = new ArrayList<>();
-        for(int i = 0;i < deviceList.size();i++){
-            iotDeviceLists.add(iotDeviceService.selectIotDeviceById(deviceList.get(i).getDeviceId()));
-        }
-        return getDataTable(iotDeviceLists);
+        List<IotDeviceListDto> list = iotDeviceService.selectIotDeviceList(iotDevice);
+        return getDataTable(list);
     }
-
-
+    @ApiOperation(value = "设备数据列表", notes = "设备数据列表")
+    @PreAuthorize("@ss.hasPermi('system:device:list')")
+    @GetMapping("/data/{deviceId}")
+    public TableDataInfo listDeviceData(@PathVariable("deviceId") long deviceId) {
+        List<List<IotDeviceData>> listAns = new ArrayList<>();
+        startPage();
+        List<IotThingsModel> iotThingsModelList = iotThingsModelService.selectIotThingsModelList(new IotThingsModel());
+        IotDeviceData iotDeviceData = new IotDeviceData();
+        iotDeviceData.setDeviceId(deviceId);
+        for(int i = 0;i < iotThingsModelList.size(); i++){
+            iotDeviceData.setModelId(iotThingsModelList.get(i).getModelId());
+            listAns.add(iotDeviceDataService.selectIotDeviceDataList(iotDeviceData));
+        }
+        return getDataTable(listAns);
+    }
+    // 0表示第一条iotThings数据以此类推
+    @ApiOperation(value = "单一设备数据列表", notes = "设备数据列表")
+    @PreAuthorize("@ss.hasPermi('system:device:list')")
+    @GetMapping("/oneData/{deviceId}/{param}")
+    public TableDataInfo listDeviceOneData(@PathVariable("deviceId") long deviceId,@PathVariable("param") int param) {
+        startPage();
+        List<IotThingsModel> iotThingsModelList = iotThingsModelService.selectIotThingsModelList(new IotThingsModel());
+        IotDeviceData iotDeviceData = new IotDeviceData();
+        iotDeviceData.setDeviceId(deviceId);
+        iotDeviceData.setModelId(iotThingsModelList.get(param).getModelId());
+        List<IotDeviceData> list = iotDeviceDataService.selectIotDeviceDataList(iotDeviceData);
+        Collections.reverse(list);
+        return getDataTable(list);
+    }
     /**
      * 导出设备列表
      */

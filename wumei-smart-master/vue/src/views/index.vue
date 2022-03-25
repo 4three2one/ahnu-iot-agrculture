@@ -9,17 +9,19 @@
       <el-col :span="10">
         <el-card style="margin:-10px;" shadow="hover">
           <h3 style="font-weight:bold;display: inline">大棚环境数据</h3>
-          <el-dropdown style = "margin: 10px">
+          <el-dropdown style = "margin: 10px" @command="getdata">
             <el-button type="primary">
-              选择设备<i class="el-icon-arrow-down el-icon--right"></i>
+              {{chooseDevice}}<i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-for="device in deviceList"
-                                v-text="device.deviceName+device.categoryName"/>
+              <el-dropdown-item v-for="(device,index) in deviceList"
+                                :command = "device"
+                                v-text="device.deviceName+device.categoryName"
+                                />
             </el-dropdown-menu>
           </el-dropdown>
           <el-row :gutter="40" class="panel-group">
-            <el-col :span="12" class="card-panel-col">
+            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(0)" >
               <div class="card-panel">
                 <div class="card-panel-icon-wrapper icon-message">
                   <svg-icon icon-class="air_temp" class-name="card-panel-icon" />
@@ -28,11 +30,11 @@
                   <div class="card-panel-text">
                     空气温度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['']" :duration="3000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.airtemp" :duration="3000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
-            <el-col :span="12" class="card-panel-col">
+            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(1)">
               <div class="card-panel">
                 <div class="card-panel-icon-wrapper icon-shopping">
                   <svg-icon icon-class="air_hump" class-name="card-panel-icon" />
@@ -41,11 +43,11 @@
                   <div class="card-panel-text">
                     空气湿度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['']" :duration="3000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.airhump" :duration="3000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
-            <el-col :span="12" class="card-panel-col">
+            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(2)">
               <div class="card-panel">
                 <div class="card-panel-icon-wrapper icon-message">
                   <svg-icon icon-class="light" class-name="card-panel-icon" />
@@ -54,11 +56,11 @@
                   <div class="card-panel-text">
                     光照强度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['']" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.light" :duration="1000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
-            <el-col :span="12" class="card-panel-col">
+            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(3)">
               <div class="card-panel">
                 <div class="card-panel-icon-wrapper icon-shopping">
                   <svg-icon icon-class="CO2" class-name="card-panel-icon" />
@@ -67,11 +69,11 @@
                   <div class="card-panel-text">
                     CO2浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['']" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.CO2" :duration="1000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
-            <el-col :span="12" class="card-panel-col">
+            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(4)">
               <div class="card-panel">
                 <div class="card-panel-icon-wrapper icon-message">
                   <svg-icon icon-class="H2S" class-name="card-panel-icon" />
@@ -80,11 +82,11 @@
                   <div class="card-panel-text">
                     H2S浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['']" :duration="2000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.H2S" :duration="2000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
-            <el-col :span="12" class="card-panel-col">
+            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(5)">
               <div class="card-panel">
                 <div class="card-panel-icon-wrapper icon-shopping">
                   <svg-icon icon-class="NH3" class-name="card-panel-icon" />
@@ -93,7 +95,7 @@
                   <div class="card-panel-text">
                     NH3浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.static['']" :duration="2000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.NH3" :duration="2000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -116,7 +118,7 @@
   } from './map.js'
   require('echarts/extension/bmap/bmap')
   import {listGroup, listGroupById} from "../api/system/group";
-  import {listDeviceByGroupId} from "../api/system/device";
+  import {listDeviceByGroupId, getDeviceData, getOneDeviceData} from "../api/system/device";
   export default {
     name: "Index",
     components: {
@@ -128,6 +130,9 @@
         groupList: [],
         // 分组总数
         groupCount:0,
+        // 选择设备
+        chooseDevice:"请选择设备",
+        chooseDeviceId:-1,
         // 设备列表
         deviceList: [],
         // 设备总数
@@ -139,7 +144,12 @@
         // 版本号
         version: "3.8.0",
         // 服务器信息
-
+        airtemp: 0,
+        airhump: 0,
+        light: 0,
+        CO2: 0,
+        H2S: 0,
+        NH3: 0,
       };
     },
     created() {
@@ -153,7 +163,6 @@
           this.$nextTick(() => {
             loadBMap().then(() => {
               this.getmap();
-              this.drawStats();
             });
           })
         })
@@ -394,27 +403,53 @@
         })
 
       },
-      drawStats() {
+      getdata(device){
+        this.chooseDeviceId = device.deviceId;
+        getDeviceData(device.deviceId).then(response => {
+          let temp = response.rows;
+            for(let i = 0;i < response.total;i++){
+                switch(i){
+                  case 0: this.airtemp = temp[i][0].modelData;break;
+                  case 1: this.airhump = temp[i][0].modelData;break;
+                  case 2: this.light = temp[i][0].modelData;break;
+                  case 3: this.CO2 = temp[i][0].modelData;break;
+                  case 4: this.H2S = temp[i][0].modelData;break;
+                  case 5: this.NH3 = temp[i][0].modelData;break;
+                  default: break;
+                }
+            }
+        });
+      },
+      drawzhexian(param){
+        console.log(param);
+          if(this.chooseDeviceId === -1){
+
+          }else{
+              getOneDeviceData(this.chooseDeviceId,param).then(response =>{
+                let temp = response.rows;
+                let data = [];
+                let time = [];
+                for(let i = 0;i < response.total;i++) {
+                  time.push(temp[i].createTime);
+                  data.push({
+                    value:temp[i].modelData,
+                  });
+                }
+                this.drawStats(time,data);
+              });
+          }
+      },
+      drawStats(time,data) {
         // 基于准备好的dom，初始化echarts实例
         let myChart = echarts.init(this.$refs.statsChart);
         var option;
-        let base = +new Date(1988, 9, 3);
-        let oneDay = 24 * 3600 * 1000;
-        let data = [[base, Math.random() * 300]];
-        for (let i = 1; i < 20000; i++) {
-          let now = new Date((base += oneDay));
-          data.push([+now, Math.round((Math.random() - 0.5) * 20 + data[i - 1][1])]);
-        }
         option = {
           tooltip: {
             trigger: 'axis',
-            position: function (pt) {
-              return [pt[0], '10%'];
-            }
           },
           title: {
             left: 'center',
-            text: 'Large Ara Chart'
+            text: '环境数据'
           },
           toolbox: {
             feature: {
@@ -426,8 +461,9 @@
             }
           },
           xAxis: {
-            type: 'time',
-            boundaryGap: false
+            type: 'category',
+            boundaryGap: false,
+            data: time
           },
           yAxis: {
             type: 'value',
@@ -436,8 +472,8 @@
           dataZoom: [
             {
               type: 'inside',
-              start: 0,
-              end: 20
+              start: 80,
+              end: 100
             },
             {
               start: 0,
@@ -446,11 +482,9 @@
           ],
           series: [
             {
-              name: 'Fake Data',
               type: 'line',
               smooth: true,
               symbol: 'none',
-              areaStyle: {},
               data: data
             }
           ]

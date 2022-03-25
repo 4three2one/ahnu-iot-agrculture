@@ -37,6 +37,8 @@ public class IotDeviceListDto extends BaseEntity {
     @Excel(name = "编号")
     private String deviceNum;
 
+    @Excel(name = "分组")
+    private Long groupId;
     /**
      * 分类
      */

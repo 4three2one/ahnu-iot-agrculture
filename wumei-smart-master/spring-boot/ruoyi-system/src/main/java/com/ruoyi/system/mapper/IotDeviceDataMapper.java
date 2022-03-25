@@ -26,7 +26,6 @@ public interface IotDeviceDataMapper {
      * @return 【请填写功能名称】集合
      */
     public List<IotDeviceData> selectIotDeviceDataList(IotDeviceData iotDeviceData);
-
     /**
      * 新增【请填写功能名称】
      *

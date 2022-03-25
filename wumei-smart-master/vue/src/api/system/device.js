@@ -25,6 +25,20 @@ export function listDeviceByGroupId(groupId) {
     method: 'get',
   })
 }
+// 查询设备数据
+export function getDeviceData(deviceId) {
+  return request({
+    url: '/system/device/data/' + deviceId,
+    method: 'get'
+  })
+}
+// 查询单一数据
+export function getOneDeviceData(deviceId,parm) {
+  return request({
+    url: '/system/device/oneData/' + deviceId+'/'+parm,
+    method: 'get'
+  })
+}
 // 查询设备详细
 export function getDevice(deviceId) {
   return request({

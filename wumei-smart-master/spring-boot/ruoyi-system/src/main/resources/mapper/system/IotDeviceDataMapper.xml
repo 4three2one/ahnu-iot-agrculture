@@ -38,7 +38,9 @@
                             and things_model_value = #{thingsModelValue}
                         </if>
                                                         </where>
+            order by id desc
     </select>
+
 
     <select id="selectIotDeviceDataById" parameterType="Long"
             resultMap="IotDeviceDataResult">
