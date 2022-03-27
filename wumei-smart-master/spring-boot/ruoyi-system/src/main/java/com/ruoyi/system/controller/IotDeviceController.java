@@ -23,10 +23,7 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.domain.vo.DeviceControlCMD;
 import com.ruoyi.system.domain.vo.IotDeviceListDto;
 import com.ruoyi.system.service.IIotGroupService;
-import com.ruoyi.system.service.impl.IotDeviceDataServiceImpl;
-import com.ruoyi.system.service.impl.IotDeviceGroupServiceImpl;
-import com.ruoyi.system.service.impl.IotDeviceModelServiceImpl;
-import com.ruoyi.system.service.impl.IotThingsModelServiceImpl;
+import com.ruoyi.system.service.impl.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,9 +55,6 @@ public class IotDeviceController extends BaseController {
     private IIotDeviceService iotDeviceService;
 
     @Autowired
-    private IotDeviceGroupServiceImpl iotDeviceGroupService;
-
-    @Autowired
     private IotDeviceDataServiceImpl iotDeviceDataService;
 
     @Autowired
@@ -68,6 +62,10 @@ public class IotDeviceController extends BaseController {
 
     @Autowired
     private IotDeviceModelServiceImpl  iotDeviceModelService;
+
+    @Autowired
+    private ThingsModelTemplateServiceImpl thingsModelTemplateService;
+
     /**
      * 查询设备列表
      */
@@ -102,26 +100,27 @@ public class IotDeviceController extends BaseController {
     @GetMapping("/data/{deviceId}")
     public TableDataInfo listDeviceData(@PathVariable("deviceId") long deviceId) {
         List<List<IotDeviceData>> listAns = new ArrayList<>();
+        IotDeviceModel t = new IotDeviceModel();
+        t.setDeviceId(deviceId);
         startPage();
-        List<IotThingsModel> iotThingsModelList = iotThingsModelService.selectIotThingsModelList(new IotThingsModel());
+        List<IotDeviceModel> iotThingsModels = iotDeviceModelService.selectIotDeviceModelList(t);
         IotDeviceData iotDeviceData = new IotDeviceData();
         iotDeviceData.setDeviceId(deviceId);
-        for(int i = 0;i < iotThingsModelList.size(); i++){
-            iotDeviceData.setModelId(iotThingsModelList.get(i).getModelId());
+        for(int i = 0;i < iotThingsModels.size(); i++){
+            iotDeviceData.setModelId(iotThingsModels.get(i).getModelId());
             listAns.add(iotDeviceDataService.selectIotDeviceDataList(iotDeviceData));
         }
         return getDataTable(listAns);
     }
-    // 0表示第一条iotThings数据以此类推
+
     @ApiOperation(value = "单一设备数据列表", notes = "设备数据列表")
     @PreAuthorize("@ss.hasPermi('system:device:list')")
-    @GetMapping("/oneData/{deviceId}/{param}")
-    public TableDataInfo listDeviceOneData(@PathVariable("deviceId") long deviceId,@PathVariable("param") int param) {
+    @GetMapping("/oneData/{deviceId}/{modelId}")
+    public TableDataInfo listDeviceOneData(@PathVariable("deviceId") long deviceId,@PathVariable("modelId") long modelId) {
         startPage();
-        List<IotThingsModel> iotThingsModelList = iotThingsModelService.selectIotThingsModelList(new IotThingsModel());
         IotDeviceData iotDeviceData = new IotDeviceData();
         iotDeviceData.setDeviceId(deviceId);
-        iotDeviceData.setModelId(iotThingsModelList.get(param).getModelId());
+        iotDeviceData.setModelId(modelId);
         List<IotDeviceData> list = iotDeviceDataService.selectIotDeviceDataList(iotDeviceData);
         Collections.reverse(list);
         return getDataTable(list);

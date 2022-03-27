@@ -33,9 +33,9 @@ export function getDeviceData(deviceId) {
   })
 }
 // 查询单一数据
-export function getOneDeviceData(deviceId,parm) {
+export function getOneDeviceData(deviceId,modelId) {
   return request({
-    url: '/system/device/oneData/' + deviceId+'/'+parm,
+    url: '/system/device/oneData/' + deviceId+'/'+modelId,
     method: 'get'
   })
 }
