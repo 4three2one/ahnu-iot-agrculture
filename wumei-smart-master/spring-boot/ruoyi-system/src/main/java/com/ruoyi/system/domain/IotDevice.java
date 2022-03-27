@@ -31,6 +31,19 @@ public class IotDevice extends BaseEntity {
      */
     private Long deviceId;
 
+    /*
+    * 模型ID
+    * */
+    private Long[] templateIds;
+
+    public Long[] getTemplateIds() {
+        return templateIds;
+    }
+
+    public void setTemplateIds(Long[] templateIds) {
+        this.templateIds = templateIds;
+    }
+
     /**
      * 编号
      */

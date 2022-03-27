@@ -19,14 +19,13 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.CustomException;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.system.domain.IotDeviceData;
-import com.ruoyi.system.domain.IotDeviceGroup;
-import com.ruoyi.system.domain.IotThingsModel;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.domain.vo.DeviceControlCMD;
 import com.ruoyi.system.domain.vo.IotDeviceListDto;
 import com.ruoyi.system.service.IIotGroupService;
 import com.ruoyi.system.service.impl.IotDeviceDataServiceImpl;
 import com.ruoyi.system.service.impl.IotDeviceGroupServiceImpl;
+import com.ruoyi.system.service.impl.IotDeviceModelServiceImpl;
 import com.ruoyi.system.service.impl.IotThingsModelServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,7 +38,6 @@ import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.system.domain.IotDevice;
 import com.ruoyi.system.service.IIotDeviceService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -67,6 +65,9 @@ public class IotDeviceController extends BaseController {
 
     @Autowired
     private IotThingsModelServiceImpl iotThingsModelService;
+
+    @Autowired
+    private IotDeviceModelServiceImpl  iotDeviceModelService;
     /**
      * 查询设备列表
      */
@@ -173,7 +174,20 @@ public class IotDeviceController extends BaseController {
         if (device != null) {
             return AjaxResult.error("设备编号已存在，请重新填写");
         }
-        return toAjax(iotDeviceService.insertIotDevice(iotDevice));
+        iotDeviceService.insertIotDevice(iotDevice);
+        /*插入模型ID*/
+        if(iotDevice.getTemplateIds()!=null&&iotDevice.getTemplateIds().length>=1){
+            Long[] templateIds = iotDevice.getTemplateIds();
+            for (int i = 0; i < templateIds.length; i++) {
+                Long templateId = templateIds[i];
+                IotDeviceModel deviceModel = new IotDeviceModel();
+                deviceModel.setDeviceId(iotDevice.getDeviceId());
+                deviceModel.setModelId(templateId);
+                iotDeviceModelService.insertIotDeviceModel(deviceModel);
+
+            }
+        }
+        return AjaxResult.success();
     }
 
     /**

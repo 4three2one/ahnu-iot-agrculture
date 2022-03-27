@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.IotDeviceModelMapper">
+
+    <resultMap type="IotDeviceModel" id="IotDeviceModelResult">
+                    <result property="deviceModelId" column="device_model_id"/>
+                    <result property="deviceId" column="device_id"/>
+                    <result property="modelId" column="model_id"/>
+                    <result property="createTime" column="create_time"/>
+            </resultMap>
+    
+    <sql id="selectIotDeviceModelVo">
+        select device_model_id, device_id, model_id, create_time        from iot_device_model
+    </sql>
+
+    <select id="selectIotDeviceModelList" parameterType="IotDeviceModel" resultMap="IotDeviceModelResult">
+        <include refid="selectIotDeviceModelVo"/>
+        <where>
+                                                                                                    <if test="deviceId != null ">
+                            and device_id = #{deviceId}
+                        </if>
+                                                                                                            <if test="modelId != null ">
+                            and model_id = #{modelId}
+                        </if>
+                                                                                    </where>
+    </select>
+
+    <select id="selectIotDeviceModelById" parameterType="Long"
+            resultMap="IotDeviceModelResult">
+                    <include refid="selectIotDeviceModelVo"/>
+            where device_model_id = #{deviceModelId}
+            </select>
+
+    <insert id="insertIotDeviceModel" parameterType="IotDeviceModel" useGeneratedKeys="true"
+            keyProperty="deviceModelId">
+        insert into iot_device_model
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                                                                            <if test="deviceId != null">device_id,
+                    </if>
+                                                                <if test="modelId != null">model_id,
+                    </if>
+                                                                <if test="createTime != null">create_time,
+                    </if>
+                                    </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                                                                            <if test="deviceId != null">#{deviceId},
+                    </if>
+                                                                <if test="modelId != null">#{modelId},
+                    </if>
+                                                                <if test="createTime != null">#{createTime},
+                    </if>
+                                    </trim>
+    </insert>
+
+    <update id="updateIotDeviceModel" parameterType="IotDeviceModel">
+        update iot_device_model
+        <trim prefix="SET" suffixOverrides=",">
+                                                                            <if test="deviceId != null">device_id =
+                        #{deviceId},
+                    </if>
+                                                                <if test="modelId != null">model_id =
+                        #{modelId},
+                    </if>
+                                                                <if test="createTime != null">create_time =
+                        #{createTime},
+                    </if>
+                                    </trim>
+        where device_model_id = #{deviceModelId}
+    </update>
+
+    <delete id="deleteIotDeviceModelById" parameterType="Long">
+        delete from iot_device_model where device_model_id = #{deviceModelId}
+    </delete>
+
+    <delete id="deleteIotDeviceModelByIds" parameterType="String">
+        delete from iot_device_model where device_model_id in
+        <foreach item="deviceModelId" collection="array" open="(" separator="," close=")">
+            #{deviceModelId}
+        </foreach>
+    </delete>
+    </mapper>
