@@ -66,6 +66,9 @@ public class IotDeviceController extends BaseController {
     @Autowired
     private ThingsModelTemplateServiceImpl thingsModelTemplateService;
 
+    @Autowired
+    private IotDeviceGroupServiceImpl iotDeviceGroupService;
+
     /**
      * 查询设备列表
      */
@@ -185,6 +188,13 @@ public class IotDeviceController extends BaseController {
                 iotDeviceModelService.insertIotDeviceModel(deviceModel);
 
             }
+        }
+        if(iotDevice.getGroupId()!=null){
+            IotDeviceGroup iotDeviceGroup = new IotDeviceGroup();
+            iotDeviceGroup.setDeviceId(iotDevice.getDeviceId());
+            iotDeviceGroup.setGroupId(iotDevice.getGroupId());
+            iotDeviceGroupService.insertIotDeviceGroup(iotDeviceGroup);
+
         }
         return AjaxResult.success();
     }
