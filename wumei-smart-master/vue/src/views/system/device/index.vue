@@ -157,8 +157,8 @@
         prop="categoryId"
         :formatter="categoryFormat"
       />
-      <el-table-column label="用户" align="center" prop="nickName" />
-      <el-table-column label="固件版本" align="center" prop="firmwareVersion" />
+<!--      <el-table-column label="用户" align="center" prop="nickName" />-->
+<!--      <el-table-column label="固件版本" align="center" prop="firmwareVersion" />-->
       <el-table-column label="在线" align="center" prop="isOnline">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.isOnline" :active-value=1 :inactive-value=0 active-color="#13ce66" disabled></el-switch>
@@ -185,37 +185,37 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="继电器" align="center" prop="relayStatus">
-        <template slot-scope="scope">
-          <el-switch v-model="scope.row.relayStatus" :active-value=1 :inactive-value=0 active-color="#13ce66" disabled></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="灯状态" align="center" prop="lightStatus">
-        <template slot-scope="scope">
-          <el-switch v-model="scope.row.lightStatus" :active-value=1 :inactive-value=0 active-color="#13ce66" disabled></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="雷达感应" align="center" prop="isRadar">
-        <template slot-scope="scope">
-          <el-switch v-model="scope.row.isRadar" :active-value=1 :inactive-value=0 disabled></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="报警" align="center" prop="isAlarm">
-        <template slot-scope="scope">
-          <el-switch v-model="scope.row.isAlarm" :active-value=1 :inactive-value=0 disabled></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="遥控" align="center" prop="isRfControl">
-        <template slot-scope="scope">
-          <el-switch v-model="scope.row.isRfControl" :active-value=1 :inactive-value=0 disabled></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="设备温度"
-        align="center"
-        prop="deviceTemperature"
-      />
-      <el-table-column label="配网地址" align="center" prop="networkAddress" />
+<!--      <el-table-column label="继电器" align="center" prop="relayStatus">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-switch v-model="scope.row.relayStatus" :active-value=1 :inactive-value=0 active-color="#13ce66" disabled></el-switch>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="灯状态" align="center" prop="lightStatus">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-switch v-model="scope.row.lightStatus" :active-value=1 :inactive-value=0 active-color="#13ce66" disabled></el-switch>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="雷达感应" align="center" prop="isRadar">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-switch v-model="scope.row.isRadar" :active-value=1 :inactive-value=0 disabled></el-switch>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="报警" align="center" prop="isAlarm">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-switch v-model="scope.row.isAlarm" :active-value=1 :inactive-value=0 disabled></el-switch>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="遥控" align="center" prop="isRfControl">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-switch v-model="scope.row.isRfControl" :active-value=1 :inactive-value=0 disabled></el-switch>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column-->
+<!--        label="设备温度"-->
+<!--        align="center"-->
+<!--        prop="deviceTemperature"-->
+<!--      />-->
+<!--      <el-table-column label="配网地址" align="center" prop="networkAddress" />-->
       <!-- <el-table-column label="配网IP" align="center" prop="networkIp" /> -->
       <el-table-column
         label="创建时间"
@@ -278,6 +278,14 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
+    <!-- 选择物模型对话框 -->
+    <el-dialog :title="titleThingsModel" :visible.sync="openSelect" width="800px" append-to-body>
+      <select-model-template ref="selectModelTemplate" @idsToParentEvent="getChildData($event)" />
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="importSelect">导 入</el-button>
+        <el-button @click="cancelSelect">取 消</el-button>
+      </div>
+    </el-dialog>
 
     <!-- 添加或修改设备对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
@@ -306,7 +314,7 @@
 
         </el-form-item>
 
-        <el-form-item label="分组" prop="categoryId">
+        <el-form-item label="分组" prop="groupId">
           <el-select
             v-model="form.groupId"
           >
@@ -318,6 +326,14 @@
             />
           </el-select>
 
+        </el-form-item>
+        <!--     增加物模型导入按钮   -->
+        <el-form-item label="物模型" prop="templateList" >
+
+          <el-button type="success" plain icon="el-icon-plus" size="mini" @click="handleThingsModelSelect" >导入通用物模型</el-button>
+          <el-row  v-for="template in templateModels" >
+            <el-col ><div class="grid-content bg-purple-dark el-icon-success" v-text="template[1]" :value="template[0]"></div></el-col>
+          </el-row>
         </el-form-item>
 
 <!--        <el-form-item label="固件版本" prop="firmwareVersion">-->
@@ -655,10 +671,14 @@ import { getNewStatus, updateStatus } from "@/api/system/status";
 import { getNewSet, updateSet } from "@/api/system/set";
 import { listCategory } from "@/api/system/category";
 import { listGroup } from "@/api/system/category";
+/*导入选择物模型*/
+import selectModelTemplate from "./select-model-template";
 
 export default {
   name: "Device",
-  components: {},
+  components: {
+    selectModelTemplate
+  },
   data() {
     return {
       // 遮罩层
@@ -677,16 +697,22 @@ export default {
       deviceList: [],
       // 弹出层标题
       title: "",
+      /*物模型对话框Title*/
+      titleThingsModel: "",
       statusTitle: "",
       setTitle: "",
       // 是否显示弹出层
       open: false,
+      /*物模型*/
+      openSelect: false,
       statusOpen: false,
       setOpen: false,
       // 创建时间时间范围
       daterangeCreateTime: [],
       // 分类
       categoryList: [],
+      /*物模型*/
+      templateModels:[],
       // 分组数据
       groupList: [],
       // 继电器字典
@@ -840,6 +866,8 @@ export default {
     cancel() {
       this.open = false;
       this.reset();
+      /*取消物模型选中数据*/
+      this.$refs.selectModelTemplate.$refs.selectTemplateTable.clearSelection();
     },
     statusCancel() {
       this.statusOpen = false;
@@ -983,6 +1011,7 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          this.form.templateIds = this.templateModels.map((item) => item[0]);
           if (this.form.deviceId != null) {
             updateDevice(this.form).then(response => {
               this.msgSuccess("修改成功");
@@ -1065,7 +1094,34 @@ export default {
         .then(response => {
           this.download(response.msg);
         });
-    }
+    },
+
+    /** 选择物模型 */
+    handleThingsModelSelect() {
+      this.openSelect = true;
+      this.titleThingsModel = "导入通用物模型";
+      // this.form.type = 1;
+      // this.form.datatype = "integer"
+      // this.form.specs = {
+      //   enumList: [],
+      // };
+    },
+    // 取消导入通用物模型按钮
+    cancelSelect() {
+      this.openSelect = false;
+      this.$refs.selectModelTemplate.$refs.selectTemplateTable.clearSelection();
+    },
+    // 获取子组件的值
+    getChildData(data) {
+      this.templateModels = data;
+    },
+    // 导入通用物模型按钮
+    importSelect() {
+      if (this.templateModels != null && this.templateModels.length > 0) {
+        this.openSelect = false;
+      }
+
+    },
   }
 };
 </script>
