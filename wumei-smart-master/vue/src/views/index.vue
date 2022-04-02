@@ -106,6 +106,7 @@
         </el-card>
       </el-col>
 
+      <div>{{data}}</div>
     </el-row>
   </div>
 </template>
@@ -152,10 +153,19 @@
         CO2: 0,
         H2S: 0,
         NH3: 0,
+        data:0,
       };
     },
     created() {
       this.getAllDevice()
+    },
+    mounted() {
+      if ('WebSocket' in window) {
+        this.websocket = new WebSocket('ws://localhost:8080/connectWebSocket/002')
+        this.initWebSocket()
+      } else {
+        alert('当前浏览器 Not support websocket')
+      }
     },
     methods: {
       getAllDevice() {
@@ -497,6 +507,51 @@
         };
         option && myChart.setOption(option);
       },
+      initWebSocket() {
+        //连接错误
+        this.websocket.onerror = this.setErrorMessage
+
+        // //连接成功
+        this.websocket.onopen = this.setOnopenMessage
+
+        //收到消息的回调
+        this.websocket.onmessage = this.setOnmessageMessage
+
+        //连接关闭的回调
+        this.websocket.onclose = this.setOncloseMessage
+
+        //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+        window.onbeforeunload = this.onbeforeunload
+      },
+      setErrorMessage() {
+        this.data = "WebSocket连接发生错误" + '   状态码：' + this.websocket.readyState;
+      },
+      setOnopenMessage() {
+        this.data = "WebSocket连接成功" + '   状态码：' + this.websocket.readyState;
+      },
+      setOnmessageMessage(event) {
+        var obj = JSON.parse(event.data);
+        this.data = '服务端返回：' + event.data;
+        //在此处给变量赋值修改页面
+        this.airtemp = obj.airtemp;
+        this.airhunp = obj.airhunp;
+      },
+      setOncloseMessage() {
+        this.data = "WebSocket连接关闭" + '   状态码：' + this.websocket.readyState;
+      },
+      onbeforeunload() {
+        this.closeWebSocket();
+      },
+
+      //websocket发送消息
+      send() {
+        this.websocket.send(this.text)
+        this.text = ''
+      },
+      closeWebSocket() {
+        this.websocket.close()
+      },
+
     },
   }
 </script>
