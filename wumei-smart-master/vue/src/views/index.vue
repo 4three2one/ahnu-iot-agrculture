@@ -106,7 +106,7 @@
         </el-card>
       </el-col>
 
-      <div>{{data}}</div>
+      <!--<div>{{data}}</div>-->
     </el-row>
   </div>
 </template>
@@ -532,6 +532,7 @@
       setOnmessageMessage(event) {
         var obj = JSON.parse(event.data);
         this.data = '服务端返回：' + event.data;
+
         //在此处给变量赋值修改页面
         this.airtemp = obj.airtemp;
         this.airhunp = obj.airhunp;

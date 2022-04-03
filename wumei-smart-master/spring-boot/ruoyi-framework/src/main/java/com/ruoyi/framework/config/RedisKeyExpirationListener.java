@@ -1,5 +1,9 @@
 package com.ruoyi.framework.config;
 
+import com.ruoyi.system.domain.IotDevice;
+import com.ruoyi.system.domain.IotGroup;
+import com.ruoyi.system.service.IIotDeviceService;
+import com.ruoyi.system.service.IIotGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
@@ -14,6 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
 
+    @Autowired
+    private IIotGroupService iotGroupService;
+
+    @Autowired
+    private IIotDeviceService iotDeviceService;
 
     public RedisKeyExpirationListener(RedisMessageListenerContainer listenerContainer) {
         super(listenerContainer);
@@ -22,9 +31,20 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        String orderCode = message.toString();
+        String keyname = message.toString();
+        long id = 0;
+        if(keyname.contains("group_")){
+            id = Long.parseLong(keyname.substring(6));
+            IotGroup iotGroup = iotGroupService.selectIotGroupById(id);
+            iotGroup.setStatus("1");
+            iotGroupService.updateIotGroup(iotGroup);
+        }else if(keyname.contains("device_")){
+            id = Integer.parseInt(keyname.substring(7));
+            IotDevice iotDevice = iotDeviceService.selectIotDeviceByNum(""+id);
+            iotDevice.setStatus("1");
+            iotDeviceService.updateIotDevice(iotDevice);
+        }
 
-        System.out.println("过期的订单号是: " + orderCode);
-
+        System.out.println("到期的KeyName是: " + id);
     }
 }
