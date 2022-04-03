@@ -68,14 +68,14 @@ public class WebSocket {
             clients.put(userId, this);
             //给自己发一条消息：告诉自己现在都有谁在线
             Map<String,Object> map2 = Maps.newHashMap();
-            map2.put("airtemp",1);
+            map2.put("airtemp",0);
             //移除掉自己
             Set<String> set = clients.keySet();
             map2.put("onlineUsers",set);
             sendMessageTo(JSON.toJSONString(map2),userId);
-            sleep(5000);
+            /*sleep(5000);
             map2.put("airtemp",5);
-            sendMessageTo(JSON.toJSONString(map2),userId);
+            sendMessageTo(JSON.toJSONString(map2),userId);*/
         }
         catch (IOException e){
             logger.info(userId+"上线的时候通知所有人发生了错误");
