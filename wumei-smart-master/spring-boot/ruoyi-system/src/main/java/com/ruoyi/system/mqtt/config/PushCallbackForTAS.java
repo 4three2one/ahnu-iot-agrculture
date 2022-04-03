@@ -85,7 +85,7 @@ public class PushCallbackForTAS implements MqttCallback {
         if(StringUtils.isEmpty(topic)) return;
         if(StringUtils.isEmpty(playload)) return;
       //  if(StringUtils.equals(playload,"is_online")||StringUtils.equals(playload,"869476055270484")) return;
-        if (topic.equals("group/0319/push")) {
+        if (StringUtils.startsWith(topic,"push_")) {
             if(StringUtils.startsWith(playload,"group_")){
                 String gourpID = StringUtils.replace(playload, "group_", "");
                 IotGroup iotGroup = iotGroupService.selectIotGroupById(new Long(gourpID));
