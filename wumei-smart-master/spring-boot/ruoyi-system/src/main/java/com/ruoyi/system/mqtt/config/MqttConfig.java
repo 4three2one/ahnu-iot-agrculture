@@ -125,7 +125,7 @@ public class MqttConfig {
         // 订阅CMD指令消息
         mqttPushClient.subscribe("cmd", 1);*/
         mqttPushClient.connect(hostUrl, clientId, username, password, timeout, keepalive);
-        mqttPushClient.subscribe("/group/0319/push", 1);
+        mqttPushClient.subscribe("push_group_15", 1);
         return mqttPushClient;
     }
 }
