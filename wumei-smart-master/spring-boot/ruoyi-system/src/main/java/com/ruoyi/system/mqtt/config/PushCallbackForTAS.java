@@ -13,6 +13,7 @@ package com.ruoyi.system.mqtt.config;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.core.domain.entity.SysDictData;
+import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
@@ -23,6 +24,7 @@ import com.ruoyi.system.service.IIotCategoryService;
 import com.ruoyi.system.service.IIotDeviceService;
 import com.ruoyi.system.service.IIotDeviceSetService;
 import com.ruoyi.system.service.IIotDeviceStatusService;
+import com.ruoyi.system.service.impl.IotGroupServiceImpl;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -59,6 +61,12 @@ public class PushCallbackForTAS implements MqttCallback {
 
     private static MqttClient client;
 
+    @Autowired
+    private RedisCache redisCache;
+
+    @Autowired
+    private IotGroupServiceImpl iotGroupService;
+
     @Override
     public void connectionLost(Throwable throwable) {
         // 连接丢失后，一般在这里面进行重连
@@ -76,30 +84,42 @@ public class PushCallbackForTAS implements MqttCallback {
         String playload=new String(mqttMessage.getPayload());
         if(StringUtils.isEmpty(topic)) return;
         if(StringUtils.isEmpty(playload)) return;
-        if(StringUtils.equals(playload,"is_online")||StringUtils.equals(playload,"869476055270484")) return;
+      //  if(StringUtils.equals(playload,"is_online")||StringUtils.equals(playload,"869476055270484")) return;
         if (topic.equals("group/0319/push")) {
-            //String data = encodeHex(mqttMessage.getPayload());
-            String data = encodeHex(mqttMessage.getPayload());
-            //添加设备信息
-            IotDevice device = getTasDeviceData(data);
+            if(StringUtils.startsWith(playload,"group_")){
+                String gourpID = StringUtils.replace(playload, "group_", "");
+                IotGroup iotGroup = iotGroupService.selectIotGroupById(new Long(gourpID));
+                if(iotGroup==null) return;
+                //更新redis信息
+                redisCache.setCacheObject(playload,playload);
+                redisCache.expire(playload, 130);
+                //设置group状态
+                iotGroup.setStatus("3");
+                iotGroupService.updateIotGroup(iotGroup);
 
-            IotDevice deviceEntity = iotDeviceService.selectIotDeviceByNum(device.getDeviceNum());
-            /*if (deviceEntity != null) {
-                device.setDeviceId(deviceEntity.getDeviceId());
-                iotDeviceService.updateIotDevice(device);
-            } else {
-                IotCategory categoryEntity = iotCategoryService.selectIotCategoryById(device.getCategoryId());
-                if (device.getDeviceName() == null || device.getDeviceNum().length() == 0) {
-                    Random rand = new Random(); //随机生成两位数
-                    device.setDeviceName(categoryEntity.getCategoryName() + (rand.nextInt(90) + 10));
-                }
-                iotDeviceService.insertIotDevice(device);
-            }*/
-            if(deviceEntity==null) return;
-            IotDeviceStatus deviceStatus = getTasDeviceStatusData(data);
-            deviceStatus.setDeviceId(deviceEntity.getDeviceId());
-            deviceStatus.setDeviceNum(device.getDeviceNum());
-            iotDeviceStatusService.insertIotDeviceStatus(deviceStatus);
+            }
+            //String data = encodeHex(mqttMessage.getPayload());
+//            String data = encodeHex(mqttMessage.getPayload());
+//            //添加设备信息
+//            IotDevice device = getTasDeviceData(data);
+//
+//            IotDevice deviceEntity = iotDeviceService.selectIotDeviceByNum(device.getDeviceNum());
+//            /*if (deviceEntity != null) {
+//                device.setDeviceId(deviceEntity.getDeviceId());
+//                iotDeviceService.updateIotDevice(device);
+//            } else {
+//                IotCategory categoryEntity = iotCategoryService.selectIotCategoryById(device.getCategoryId());
+//                if (device.getDeviceName() == null || device.getDeviceNum().length() == 0) {
+//                    Random rand = new Random(); //随机生成两位数
+//                    device.setDeviceName(categoryEntity.getCategoryName() + (rand.nextInt(90) + 10));
+//                }
+//                iotDeviceService.insertIotDevice(device);
+//            }*/
+//            if(deviceEntity==null) return;
+//            IotDeviceStatus deviceStatus = getTasDeviceStatusData(data);
+//            deviceStatus.setDeviceId(deviceEntity.getDeviceId());
+//            deviceStatus.setDeviceNum(device.getDeviceNum());
+//            iotDeviceStatusService.insertIotDeviceStatus(deviceStatus);
         }
     }
     @Override
