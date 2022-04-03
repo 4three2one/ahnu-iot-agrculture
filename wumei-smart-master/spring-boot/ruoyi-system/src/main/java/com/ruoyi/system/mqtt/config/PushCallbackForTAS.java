@@ -12,6 +12,7 @@ package com.ruoyi.system.mqtt.config;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonObject;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.common.utils.DictUtils;
@@ -24,7 +25,10 @@ import com.ruoyi.system.service.IIotCategoryService;
 import com.ruoyi.system.service.IIotDeviceService;
 import com.ruoyi.system.service.IIotDeviceSetService;
 import com.ruoyi.system.service.IIotDeviceStatusService;
+import com.ruoyi.system.service.impl.IotDeviceDataServiceImpl;
+import com.ruoyi.system.service.impl.IotDeviceModelServiceImpl;
 import com.ruoyi.system.service.impl.IotGroupServiceImpl;
+import com.ruoyi.system.service.impl.IotThingsModelServiceImpl;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -67,6 +71,15 @@ public class PushCallbackForTAS implements MqttCallback {
     @Autowired
     private IotGroupServiceImpl iotGroupService;
 
+    @Autowired
+    private IotDeviceModelServiceImpl iotDeviceModelService;
+
+    @Autowired
+    private IotThingsModelServiceImpl iotThingsModelService;
+
+    @Autowired
+    private IotDeviceDataServiceImpl iotDeviceDataService;
+
     @Override
     public void connectionLost(Throwable throwable) {
         // 连接丢失后，一般在这里面进行重连
@@ -100,21 +113,42 @@ public class PushCallbackForTAS implements MqttCallback {
             }
             String data = encodeHex(mqttMessage.getPayload());
             //添加设备信息
-            IotDevice device = getTasDeviceData(data);
+            IotDevice device = getTasDevice(data);
             device.setGroupId(iotGroup.getGroupId());
             IotDevice deviceEntity = iotDeviceService.selectIotDeviceByNum(device.getDeviceNum());
             if(deviceEntity==null) return;
             //更新redis信息
             redisCache.setCacheObject("device_"+device.getDeviceNum(),playload);
             redisCache.expire(playload, 10);
-            //设置group状态
+            //设置device状态在线
             device.setStatus("3");
             iotDeviceService.updateIotDevice(device);
-
-//            IotDeviceStatus deviceStatus = getTasDeviceStatusData(data);
-//            deviceStatus.setDeviceId(deviceEntity.getDeviceId());
-//            deviceStatus.setDeviceNum(device.getDeviceNum());
-//            iotDeviceStatusService.insertIotDeviceStatus(deviceStatus);
+            IotDeviceModel deviceModelSelect = new IotDeviceModel();
+            deviceModelSelect.setDeviceId(device.getDeviceId());
+            //获取设备定义的物模型
+            List<IotDeviceModel> iotDeviceModels = iotDeviceModelService.selectIotDeviceModelList(deviceModelSelect);
+            for(IotDeviceModel deviceModel:iotDeviceModels){
+                Long modelId = deviceModel.getModelId();
+                if(modelId==null) continue;
+                IotThingsModel iotThingsModel = iotThingsModelService.selectIotThingsModelById(modelId);
+                if(iotThingsModel==null) continue;
+                String specs = iotThingsModel.getSpecs();
+                if(StringUtils.isEmpty(specs)) continue;
+                JSONObject specsJson = JSON.parseObject(specs);
+                int index = -1;
+                try {
+                    index= (int) specsJson.get("index");
+                }catch (Exception e){
+                    logger.error(e.getMessage());
+                }
+                if(index==-1) continue;
+                Long tasDeviceData = getTasDeviceData(data, index);
+                IotDeviceData deviceData = new IotDeviceData();
+                deviceData.setDeviceId(device.getDeviceId());
+                deviceData.setModelId(modelId);
+                deviceData.setModelData(tasDeviceData);
+                iotDeviceDataService.insertIotDeviceData(deviceData);
+            }
         }
     }
     @Override
@@ -135,19 +169,15 @@ public class PushCallbackForTAS implements MqttCallback {
         }
         return buff.toString();
     }
-    private IotDevice getTasDeviceData(String data) {
+    private IotDevice getTasDevice(String data) {
         IotDevice iotDevice=new IotDevice();
         String[] s = data.split(" ");
         iotDevice.setDeviceNum(Integer.valueOf(s[0],16).toString());
         return  iotDevice;
     }
-    private IotDeviceStatus getTasDeviceStatusData(String data) {
-        IotDeviceStatus iotDeviceStatus=new IotDeviceStatus();
+    private Long getTasDeviceData(String data,int index) {
         String[] s = data.split(" ");
-        iotDeviceStatus.setAirHumidity(BigDecimal.valueOf(Integer.valueOf(s[4],16)));
-        iotDeviceStatus.setAirTemperature(BigDecimal.valueOf(Integer.valueOf(s[5],16)));
-        iotDeviceStatus.setIsOnline(1);
-        return  iotDeviceStatus;
+        return  Long.valueOf(Integer.valueOf(s[index],16));
     }
 
 
