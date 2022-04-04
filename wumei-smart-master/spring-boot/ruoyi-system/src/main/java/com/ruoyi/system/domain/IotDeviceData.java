@@ -11,111 +11,116 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author wxy
  * @date 2022-03-24
  */
-public class IotDeviceData extends BaseEntity
-        {
-private static final long serialVersionUID=1L;
+public class IotDeviceData extends BaseEntity {
+    private static final long serialVersionUID = 1L;
 
-        /** ID */
-            private Long id;
+    /**
+     * ID
+     */
+    private Long id;
 
-            /** 设备id */
-                                                        @Excel(name = "设备id")
-                        private Long deviceId;
+    /**
+     * 设备id
+     */
+    @Excel(name = "设备id")
+    private Long deviceId;
 
-            /** 物模型ID */
-                                                        @Excel(name = "物模型ID")
-                        private Long modelId;
+    /**
+     * 物模型ID
+     */
+    @Excel(name = "物模型ID")
+    private Long modelId;
 
-            /** 值 */
-                                                        @Excel(name = "值")
-                        private Long modelData;
+    /**
+     * 值
+     */
+    @Excel(name = "值")
+    private double modelData;
 
-            /** 删除标志（0代表存在 2代表删除） */
-            private String delFlag;
+    /**
+     * 删除标志（0代表存在 2代表删除）
+     */
+    private String delFlag;
 
-            /** 设备状态：未激活，未绑定，已绑定 */
-                                                        @Excel(name = "设备状态：未激活，未绑定，已绑定")
-                        private String status;
+    /**
+     * 设备状态：未激活，未绑定，已绑定
+     */
+    @Excel(name = "设备状态：未激活，未绑定，已绑定")
+    private String status;
 
-                /** 物模型值以后JSON值 */
-                                                        @Excel(name = "物模型值以后JSON值")
-                        private String thingsModelValue;
+    /**
+     * 物模型值以后JSON值
+     */
+    @Excel(name = "物模型值以后JSON值")
+    private String thingsModelValue;
 
-                            public void setId(Long id)
-            {
-            this.id = id;
-            }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Long getId()
-            {
-            return id;
-            }
-                            public void setDeviceId(Long deviceId)
-            {
-            this.deviceId = deviceId;
-            }
+    public Long getId() {
+        return id;
+    }
 
-    public Long getDeviceId()
-            {
-            return deviceId;
-            }
-                            public void setModelId(Long modelId)
-            {
-            this.modelId = modelId;
-            }
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = deviceId;
+    }
 
-    public Long getModelId()
-            {
-            return modelId;
-            }
-                            public void setModelData(Long modelData)
-            {
-            this.modelData = modelData;
-            }
+    public Long getDeviceId() {
+        return deviceId;
+    }
 
-    public Long getModelData()
-            {
-            return modelData;
-            }
-                            public void setDelFlag(String delFlag)
-            {
-            this.delFlag = delFlag;
-            }
+    public void setModelId(Long modelId) {
+        this.modelId = modelId;
+    }
 
-    public String getDelFlag()
-            {
-            return delFlag;
-            }
-                            public void setStatus(String status)
-            {
-            this.status = status;
-            }
+    public Long getModelId() {
+        return modelId;
+    }
 
-    public String getStatus()
-            {
-            return status;
-            }
-                                public void setThingsModelValue(String thingsModelValue)
-            {
-            this.thingsModelValue = thingsModelValue;
-            }
+    public void setModelData(double modelData) {
+        this.modelData = modelData;
+    }
 
-    public String getThingsModelValue()
-            {
-            return thingsModelValue;
-            }
-    
-@Override
-public String toString(){
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-                                .append("id",getId())
-                                .append("deviceId",getDeviceId())
-                                .append("modelId",getModelId())
-                                .append("modelData",getModelData())
-                                .append("delFlag",getDelFlag())
-                                .append("status",getStatus())
-                                .append("createTime",getCreateTime())
-                                .append("thingsModelValue",getThingsModelValue())
+    public double getModelData() {
+        return modelData;
+    }
+
+    public void setDelFlag(String delFlag) {
+        this.delFlag = delFlag;
+    }
+
+    public String getDelFlag() {
+        return delFlag;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setThingsModelValue(String thingsModelValue) {
+        this.thingsModelValue = thingsModelValue;
+    }
+
+    public String getThingsModelValue() {
+        return thingsModelValue;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("id", getId())
+                .append("deviceId", getDeviceId())
+                .append("modelId", getModelId())
+                .append("modelData", getModelData())
+                .append("delFlag", getDelFlag())
+                .append("status", getStatus())
+                .append("createTime", getCreateTime())
+                .append("thingsModelValue", getThingsModelValue())
                 .toString();
-        }
-        }
+    }
+}

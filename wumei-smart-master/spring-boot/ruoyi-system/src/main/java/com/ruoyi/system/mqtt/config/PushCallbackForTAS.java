@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonObject;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.redis.RedisCache;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
@@ -142,11 +143,12 @@ public class PushCallbackForTAS implements MqttCallback {
                     logger.error(e.getMessage());
                 }
                 if(index==-1) continue;
-                Long tasDeviceData = getTasDeviceData(data, index);
+                double tasDeviceData = getTasDeviceData(data, index);
                 IotDeviceData deviceData = new IotDeviceData();
                 deviceData.setDeviceId(device.getDeviceId());
                 deviceData.setModelId(modelId);
                 deviceData.setModelData(tasDeviceData);
+                deviceData.setCreateTime(DateUtils.getNowDate());
                 iotDeviceDataService.insertIotDeviceData(deviceData);
             }
         }
@@ -175,9 +177,9 @@ public class PushCallbackForTAS implements MqttCallback {
         iotDevice.setDeviceNum(Integer.valueOf(s[0],16).toString());
         return  iotDevice;
     }
-    private Long getTasDeviceData(String data,int index) {
+    private double getTasDeviceData(String data,int index) {
         String[] s = data.split(" ");
-        return  Long.valueOf(Integer.valueOf(s[index],16));
+        return  Double.valueOf(Integer.valueOf(s[index],16));
     }
 
 
