@@ -106,7 +106,7 @@
         </el-card>
       </el-col>
 
-      <!--<div>{{data}}</div>-->
+      <div>{{userid}}</div>
     </el-row>
   </div>
 </template>
@@ -118,6 +118,7 @@
     loadBMap
   } from './map.js'
   require('echarts/extension/bmap/bmap')
+  import {getInfo} from "../api/login";
   import {listGroup, listGroupById} from "../api/system/group";
   import {listDeviceByGroupId, getDeviceData, getOneDeviceData} from "../api/system/device";
   export default {
@@ -127,6 +128,7 @@
     },
     data() {
       return {
+        userid:0,
         // 分组列表
         groupList: [],
         // 分组总数
@@ -157,17 +159,24 @@
       };
     },
     created() {
-      this.getAllDevice()
+
+      this.getAllDevice();
     },
     mounted() {
-      if ('WebSocket' in window) {
-        this.websocket = new WebSocket('ws://localhost:8080/connectWebSocket/002')
-        this.initWebSocket()
-      } else {
-        alert('当前浏览器 Not support websocket')
-      }
+      this.getinfoWebSocket();
     },
     methods: {
+      getinfoWebSocket(){
+        getInfo().then(response => {
+          this.userid = response.user.userId;
+          if ('WebSocket' in window) {
+            this.websocket = new WebSocket('ws://localhost:8080/connectWebSocket/'+this.userid)
+            this.initWebSocket()
+          } else {
+            alert('当前浏览器 Not support websocket')
+          }
+        })
+      },
       getAllDevice() {
         listGroupById().then(response => {
           this.groupList = response.rows;
@@ -532,10 +541,29 @@
       setOnmessageMessage(event) {
         var obj = JSON.parse(event.data);
         this.data = '服务端返回：' + event.data;
-
-        //在此处给变量赋值修改页面
-        this.airtemp = obj.airtemp;
-        this.airhunp = obj.airhunp;
+        for(let i = 0; i < this.groupList.length; i++){
+            console.log(this.groupList[i]);
+            console.log(obj.groupId);
+            if(obj.groupId === this.groupList[i].groupId){
+                this.groupList[i].status = obj.status;
+                this.getmap();
+                break;
+            }
+        }
+        if(this.chooseDeviceId === obj.deviceId) {
+          if (obj.airtemp != null)
+            this.airtemp = obj.airtemp;
+          if (obj.airhump != null)
+            this.airhump = obj.airhump;
+          if (obj.CO2 != null)
+            this.CO2 = obj.CO2;
+          if (obj.light != null)
+            this.light = obj.light;
+          if (obj.NH3 != null)
+            this.NH3 = obj.NH3;
+          if (obj.H2S != null)
+            this.H2S = obj.H2S;
+        }
       },
       setOncloseMessage() {
         this.data = "WebSocket连接关闭" + '   状态码：' + this.websocket.readyState;

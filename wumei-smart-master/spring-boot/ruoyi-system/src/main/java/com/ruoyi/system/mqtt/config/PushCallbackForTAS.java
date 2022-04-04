@@ -30,6 +30,7 @@ import com.ruoyi.system.service.impl.IotDeviceDataServiceImpl;
 import com.ruoyi.system.service.impl.IotDeviceModelServiceImpl;
 import com.ruoyi.system.service.impl.IotGroupServiceImpl;
 import com.ruoyi.system.service.impl.IotThingsModelServiceImpl;
+import com.ruoyi.system.websocket.config.WebSocket;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -51,6 +52,8 @@ import java.util.Random;
 public class PushCallbackForTAS implements MqttCallback {
     private static final Logger logger = LoggerFactory.getLogger(MqttPushClient.class);
 
+    @Autowired
+    private WebSocket webSocket;
     @Autowired
     private MqttConfig mqttConfig;
     @Autowired
@@ -93,6 +96,7 @@ public class PushCallbackForTAS implements MqttCallback {
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
         // subscribe后得到的消息会执行到这里面
+
         logger.info("接收消息主题 : " + topic);
         logger.info("接收消息Qos : " + mqttMessage.getQos());
         String playload=new String(mqttMessage.getPayload());

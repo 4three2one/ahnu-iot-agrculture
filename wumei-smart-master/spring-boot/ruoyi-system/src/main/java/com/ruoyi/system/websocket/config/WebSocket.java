@@ -67,12 +67,18 @@ public class WebSocket {
             //把自己的信息加入到map当中去
             clients.put(userId, this);
             //给自己发一条消息：告诉自己现在都有谁在线
+           /* sleep(5000);
             Map<String,Object> map2 = Maps.newHashMap();
-            map2.put("airtemp",0);
+            map2.put("groupId",15);
             //移除掉自己
             Set<String> set = clients.keySet();
-            map2.put("onlineUsers",set);
-            sendMessageTo(JSON.toJSONString(map2),userId);
+            map2.put("status","1");
+            sendMessageTo(JSON.toJSONString(map2),userId);*/
+            sleep(5000);
+            Map<String,Object> map3 = Maps.newHashMap();
+            map3.put("deviceId",15);
+            map3.put("airtemp",3);
+            sendMessageTo(JSON.toJSONString(map3),userId);
             /*sleep(5000);
             map2.put("airtemp",5);
             sendMessageTo(JSON.toJSONString(map2),userId);*/
