@@ -77,7 +77,6 @@ public class WebSocket {
             sleep(5000);
             Map<String,Object> map3 = Maps.newHashMap();
             map3.put("deviceId",15);
-            map3.put("airtemp",3);
             sendMessageTo(JSON.toJSONString(map3),userId);
             /*sleep(5000);
             map2.put("airtemp",5);

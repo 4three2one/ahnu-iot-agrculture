@@ -3,7 +3,35 @@
     <el-row :gutter="40">
       <el-col :span="14">
         <el-card style="margin:-10px;" shadow="hover" body-style="background-color:#F8F8F8;">
-          <div ref = "map" style="height:650px;margin:-10px;margin-top:-5px;"></div>
+          <div ref = "map" style="height:350px;margin:-10px;margin-top:-5px;"></div>
+        </el-card>
+        <el-card style="margin:-10px;" shadow="hover">
+              <div style="height: 180px">
+                <div class="card-panel-text">
+                  <el-col :span="12">
+                    <div style = "font-size:20px;text-align: center;font-weight:bold;margin-bottom: 5px;">网关连接的传感器设备信息</div>
+                    <el-col :span="12">
+                      <el-card class="box-card" style="background: #36a3f7">
+                        <div style = "font-size:16px;font-weight:bold;text-align: center">设备总数</div>
+                      </el-card>
+                      <el-card class="box-card">
+                        <div style = "font-size:16px;font-weight:bold;text-align: center">{{deviceCount}}</div>
+                      </el-card>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-card class="box-card" style="background: #36a3f7">
+                        <div style = "font-size:16px;font-weight:bold;text-align: center">设备在线总数</div>
+                      </el-card>
+                      <el-card class="box-card">
+                        <div style = "font-size:16px;font-weight:bold;text-align: center">{{onlinedeviceCount}}</div>
+                      </el-card>
+                    </el-col>
+                  </el-col>
+                  <el-col :span="12">
+                      <div ref="deviceChart" style="height: 300px"></div>
+                  </el-col>
+                </div>
+              </div>
         </el-card>
       </el-col>
       <el-col :span="10">
@@ -106,7 +134,6 @@
         </el-card>
       </el-col>
 
-      <div>{{userid}}</div>
     </el-row>
   </div>
 </template>
@@ -121,6 +148,7 @@
   import {getInfo} from "../api/login";
   import {listGroup, listGroupById} from "../api/system/group";
   import {listDeviceByGroupId, getDeviceData, getOneDeviceData} from "../api/system/device";
+  import {getData} from "../api/system/dict/data";
   export default {
     name: "Index",
     components: {
@@ -128,6 +156,8 @@
     },
     data() {
       return {
+        //默认加载大棚
+        startgroupid:15,
         userid:0,
         // 分组列表
         groupList: [],
@@ -135,11 +165,14 @@
         groupCount:0,
         // 选择设备
         chooseDevice:"请选择设备",
+        chooseOnlineDevice:"请选择在线设备",
         chooseDeviceId:-1,
         // 设备列表
         deviceList: [],
         // 设备总数
         deviceCount:0,
+        // 在线设备总数
+        onlinedeviceCount:0,
         // emqx状态数据
         stats: {},
         // emqx统计信息
@@ -159,13 +192,20 @@
       };
     },
     created() {
-
+      this.start();
       this.getAllDevice();
     },
     mounted() {
       this.getinfoWebSocket();
     },
     methods: {
+      start(){
+        listDeviceByGroupId(this.startgroupid).then(response => {
+          this.deviceList = response.rows;
+          this.deviceCount=response.total;
+          this.getdata(this.deviceList[0]);
+        });
+      },
       getinfoWebSocket(){
         getInfo().then(response => {
           this.userid = response.user.userId;
@@ -184,6 +224,7 @@
           this.$nextTick(() => {
             loadBMap().then(() => {
               this.getmap();
+              this.drawdevice();
             });
           })
         })
@@ -211,7 +252,7 @@
         };
         option = {
           title: {
-            text: '设备分布和状态（数量 '+this.groupCount+'）',
+            text: '设备组分布和状态（数量 '+this.groupCount+'）',
             target: "_blank",
             textStyle: {
               color: '#333',
@@ -245,8 +286,8 @@
 
           },
           bmap: {
-            center: [133, 37],
-            zoom: 5,
+            center: [130, 25],
+            zoom: 6,
             roam: true,
             mapStyle: {
               styleJson: [{
@@ -512,6 +553,158 @@
               symbol: 'none',
               data: data
             }
+          ]
+        };
+        option && myChart.setOption(option);
+      },
+      drawdevice(){
+        let myChart = echarts.init(this.$refs.deviceChart);
+        var option;
+        const posList = [
+          'left',
+          'right',
+          'top',
+          'bottom',
+          'inside',
+          'insideTop',
+          'insideLeft',
+          'insideRight',
+          'insideBottom',
+          'insideTopLeft',
+          'insideTopRight',
+          'insideBottomLeft',
+          'insideBottomRight'
+        ];
+        app.configParameters = {
+          rotate: {
+            min: -90,
+            max: 90
+          },
+          align: {
+            options: {
+              left: 'left',
+              center: 'center',
+              right: 'right'
+            }
+          },
+          verticalAlign: {
+            options: {
+              top: 'top',
+              middle: 'middle',
+              bottom: 'bottom'
+            }
+          },
+          position: {
+            options: posList.reduce(function (map, pos) {
+              map[pos] = pos;
+              return map;
+            }, {})
+          },
+          distance: {
+            min: 0,
+            max: 100
+          }
+        };
+        app.config = {
+          rotate: 90,
+          align: 'left',
+          verticalAlign: 'middle',
+          position: 'insideBottom',
+          distance: 15,
+          onChange: function () {
+            const labelOption = {
+              rotate: app.config.rotate,
+              align: app.config.align,
+              verticalAlign: app.config.verticalAlign,
+              position: app.config.position,
+              distance: app.config.distance
+            };
+            myChart.setOption({
+              series: [
+                {
+                  label: labelOption
+                },
+                {
+                  label: labelOption
+                },
+                {
+                  label: labelOption
+                },
+                {
+                  label: labelOption
+                }
+              ]
+            });
+          }
+        };
+        const labelOption = {
+          show: true,
+          position: app.config.position,
+          distance: app.config.distance,
+          align: app.config.align,
+          verticalAlign: app.config.verticalAlign,
+          rotate: app.config.rotate,
+          formatter: '{c}  {name|{a}}',
+          fontSize: 16,
+          rich: {
+            name: {}
+          }
+        };
+        option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {
+            data: ['设备总数', '在线设备']
+          },
+          toolbox: {
+            show: true,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+              mark: { show: true },
+              dataView: { show: true, readOnly: false },
+              magicType: { show: true, type: ['line', 'bar', 'stack'] },
+              restore: { show: true },
+              saveAsImage: { show: true }
+            }
+          },
+          xAxis: [
+            {
+              type: 'category',
+              axisTick: { show: false },
+              data: ['温湿度', '光照', 'CO2浓度',]
+            }
+          ],
+          yAxis: [
+            {
+              type: 'value'
+            }
+          ],
+          series: [
+            {
+              name: '设备总数',
+              type: 'bar',
+              barGap: 0,
+              label: labelOption,
+              emphasis: {
+                focus: 'series'
+              },
+              data: [3, 2, 1]
+            },
+            {
+              name: '在线设备',
+              type: 'bar',
+              label: labelOption,
+              emphasis: {
+                focus: 'series'
+              },
+              data: [1, 1, 1]
+            },
           ]
         };
         option && myChart.setOption(option);
