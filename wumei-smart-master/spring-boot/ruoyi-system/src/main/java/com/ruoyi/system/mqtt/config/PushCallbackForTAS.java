@@ -26,10 +26,7 @@ import com.ruoyi.system.service.IIotCategoryService;
 import com.ruoyi.system.service.IIotDeviceService;
 import com.ruoyi.system.service.IIotDeviceSetService;
 import com.ruoyi.system.service.IIotDeviceStatusService;
-import com.ruoyi.system.service.impl.IotDeviceDataServiceImpl;
-import com.ruoyi.system.service.impl.IotDeviceModelServiceImpl;
-import com.ruoyi.system.service.impl.IotGroupServiceImpl;
-import com.ruoyi.system.service.impl.IotThingsModelServiceImpl;
+import com.ruoyi.system.service.impl.*;
 import com.ruoyi.system.websocket.config.WebSocket;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -79,7 +76,7 @@ public class PushCallbackForTAS implements MqttCallback {
     private IotDeviceModelServiceImpl iotDeviceModelService;
 
     @Autowired
-    private IotThingsModelServiceImpl iotThingsModelService;
+    private ThingsModelTemplateServiceImpl thingsModelTemplateService;
 
     @Autowired
     private IotDeviceDataServiceImpl iotDeviceDataService;
@@ -111,10 +108,11 @@ public class PushCallbackForTAS implements MqttCallback {
             if(StringUtils.startsWith(playload,"group_")){
                 //更新redis信息
                 redisCache.setCacheObject(playload,playload);
-                redisCache.expire(playload, 130);
+                redisCache.expire(playload, 40);
                 //设置group状态
                 iotGroup.setStatus("3");
                 iotGroupService.updateIotGroup(iotGroup);
+                return;
             }
             String data = encodeHex(mqttMessage.getPayload());
             //添加设备信息
@@ -124,18 +122,18 @@ public class PushCallbackForTAS implements MqttCallback {
             if(deviceEntity==null) return;
             //更新redis信息
             redisCache.setCacheObject("device_"+device.getDeviceNum(),playload);
-            redisCache.expire(playload, 10);
+            redisCache.expire("device_"+device.getDeviceNum(), 30);
             //设置device状态在线
-            device.setStatus("3");
-            iotDeviceService.updateIotDevice(device);
+            deviceEntity.setStatus("3");
+            iotDeviceService.updateIotDevice(deviceEntity);
             IotDeviceModel deviceModelSelect = new IotDeviceModel();
-            deviceModelSelect.setDeviceId(device.getDeviceId());
+            deviceModelSelect.setDeviceId(deviceEntity.getDeviceId());
             //获取设备定义的物模型
             List<IotDeviceModel> iotDeviceModels = iotDeviceModelService.selectIotDeviceModelList(deviceModelSelect);
             for(IotDeviceModel deviceModel:iotDeviceModels){
                 Long modelId = deviceModel.getModelId();
                 if(modelId==null) continue;
-                IotThingsModel iotThingsModel = iotThingsModelService.selectIotThingsModelById(modelId);
+                ThingsModelTemplate iotThingsModel = thingsModelTemplateService.selectThingsModelTemplateByTemplateId(modelId);
                 if(iotThingsModel==null) continue;
                 String specs = iotThingsModel.getSpecs();
                 if(StringUtils.isEmpty(specs)) continue;
@@ -149,7 +147,7 @@ public class PushCallbackForTAS implements MqttCallback {
                 if(index==-1) continue;
                 double tasDeviceData = getTasDeviceData(data, index);
                 IotDeviceData deviceData = new IotDeviceData();
-                deviceData.setDeviceId(device.getDeviceId());
+                deviceData.setDeviceId(deviceEntity.getDeviceId());
                 deviceData.setModelId(modelId);
                 deviceData.setModelData(tasDeviceData);
                 deviceData.setCreateTime(DateUtils.getNowDate());
