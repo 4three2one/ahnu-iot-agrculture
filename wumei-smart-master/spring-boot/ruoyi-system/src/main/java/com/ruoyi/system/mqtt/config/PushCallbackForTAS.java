@@ -12,6 +12,7 @@ package com.ruoyi.system.mqtt.config;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.redis.RedisCache;
@@ -37,8 +38,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -112,6 +115,16 @@ public class PushCallbackForTAS implements MqttCallback {
                 //设置group状态
                 iotGroup.setStatus("3");
                 iotGroupService.updateIotGroup(iotGroup);
+                //websocket传消息
+                try {
+                    Map<String,Object> map = Maps.newHashMap();
+                    map.put("groupId",new Long(gourpID));
+                    map.put("status","3");
+                    webSocket.sendMessageAll(JSON.toJSONString(map),"0");
+                }
+                catch (IOException e){
+                    System.out.println("WebSocket错误");
+                }
                 return;
             }
             String data = encodeHex(mqttMessage.getPayload());
@@ -151,7 +164,28 @@ public class PushCallbackForTAS implements MqttCallback {
                 deviceData.setModelId(modelId);
                 deviceData.setModelData(tasDeviceData);
                 deviceData.setCreateTime(DateUtils.getNowDate());
+                double max = -999;
+                double min = 999;
+                try {
+                    max= (double) specsJson.get("max");
+                    min= (double) specsJson.get("min");
+                }catch (Exception e){
+                    logger.error(e.getMessage());
+                }
+                deviceData.setStatus("3");
+                if (tasDeviceData > max || tasDeviceData < min) {
+                    deviceData.setStatus("1");
+                }
                 iotDeviceDataService.insertIotDeviceData(deviceData);
+                try {
+                    Map<String,Object> map = Maps.newHashMap();
+                    map.put("deviceId",new Long(gourpID));
+                    map.put(iotThingsModel.getIdentifier(),tasDeviceData);
+                    webSocket.sendMessageAll(JSON.toJSONString(map),"0");
+                }
+                catch (IOException e){
+                    System.out.println("WebSocket错误");
+                }
             }
         }
     }

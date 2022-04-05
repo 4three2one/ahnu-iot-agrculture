@@ -30,7 +30,7 @@
                   <div class="card-panel-text">
                     空气温度
                   </div>
-                  <count-to :start-val="0" :end-val="this.airtemp" :duration="3000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.airtemp" :duration="1000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -43,7 +43,7 @@
                   <div class="card-panel-text">
                     空气湿度
                   </div>
-                  <count-to :start-val="0" :end-val="this.airhump" :duration="3000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.airhump" :duration="1000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -82,7 +82,7 @@
                   <div class="card-panel-text">
                     H2S浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.H2S" :duration="2000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.H2S" :duration="1000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>
@@ -95,7 +95,7 @@
                   <div class="card-panel-text">
                     NH3浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.NH3" :duration="2000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.NH3" :duration="1000" class="card-panel-num" />
                 </div>
               </div>
             </el-col>

@@ -67,7 +67,7 @@ public class WebSocket {
             //把自己的信息加入到map当中去
             clients.put(userId, this);
             //给自己发一条消息：告诉自己现在都有谁在线
-           /* sleep(5000);
+            /*sleep(5000);
             Map<String,Object> map2 = Maps.newHashMap();
             map2.put("groupId",15);
             //移除掉自己
