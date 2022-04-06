@@ -59,7 +59,7 @@
                   <div class="card-panel-text">
                     空气温度
                   </div>
-                  <count-to :start-val="0" :end-val="this.airtemp" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.airtemp" :duration="1000" class="card-panel-num" />℃
                 </div>
               </div>
             </el-col>
@@ -72,7 +72,7 @@
                   <div class="card-panel-text">
                     空气湿度
                   </div>
-                  <count-to :start-val="0" :end-val="this.airhump" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.airhump" :duration="1000" class="card-panel-num" />hPa
                 </div>
               </div>
             </el-col>
@@ -85,7 +85,7 @@
                   <div class="card-panel-text">
                     光照强度
                   </div>
-                  <count-to :start-val="0" :end-val="this.light" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.light" :duration="1000" class="card-panel-num" />lux
                 </div>
               </div>
             </el-col>
@@ -98,7 +98,7 @@
                   <div class="card-panel-text">
                     CO2浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.CO2" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.CO2" :duration="1000" class="card-panel-num" />ppm
                 </div>
               </div>
             </el-col>
@@ -111,7 +111,7 @@
                   <div class="card-panel-text">
                     H2S浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.H2S" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.H2S" :duration="1000" class="card-panel-num" />ppm
                 </div>
               </div>
             </el-col>
@@ -124,7 +124,7 @@
                   <div class="card-panel-text">
                     NH3浓度
                   </div>
-                  <count-to :start-val="0" :end-val="this.NH3" :duration="1000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="this.NH3" :duration="1000" class="card-panel-num" />ppm
                 </div>
               </div>
             </el-col>
