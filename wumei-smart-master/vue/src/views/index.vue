@@ -9,6 +9,7 @@
               <div style="height: 180px">
                 <div class="card-panel-text">
                   <el-col :span="12">
+                    <div style = "font-size:20px;text-align: center;font-weight:bold;margin-bottom: 5px;">大棚名:{{choosegroupName}}</div>
                     <div style = "font-size:20px;text-align: center;font-weight:bold;margin-bottom: 5px;">网关连接的传感器设备信息</div>
                     <el-col :span="12">
                       <el-card class="box-card" style="background: #36a3f7">
@@ -148,6 +149,7 @@
   import {getInfo} from "../api/login";
   import {listGroup, listGroupById} from "../api/system/group";
   import {listDeviceByGroupId, getDeviceData, getOneDeviceData} from "../api/system/device";
+  import {listCategory} from "../api/system/category";
   import {getData} from "../api/system/dict/data";
   export default {
     name: "Index",
@@ -158,6 +160,8 @@
       return {
         //默认加载大棚
         startgroupid:15,
+        //默认大棚名字
+        choosegroupName:"无",
         userid:0,
         // 分组列表
         groupList: [],
@@ -167,6 +171,9 @@
         chooseDevice:"请选择设备",
         chooseOnlineDevice:"请选择在线设备",
         chooseDeviceId:-1,
+        //设备种类列表
+        categoryList:[],
+        categoryCount:0,
         // 设备列表
         deviceList: [],
         // 设备总数
@@ -192,19 +199,57 @@
       };
     },
     created() {
-      this.start();
+      //两个初始化方法
       this.getAllDevice();
+      this.start();
     },
     mounted() {
       this.getinfoWebSocket();
     },
     methods: {
       start(){
+        listCategory().then(response =>{
+          this.categoryList = response.rows;
+          this.categoryCount = response.total;
+        });
         listDeviceByGroupId(this.startgroupid).then(response => {
           this.deviceList = response.rows;
           this.deviceCount=response.total;
           this.getdata(this.deviceList[0]);
+          //画设备柱状图
+          this.drawDeviceNum()
         });
+      },
+      drawDeviceNum(){
+        let xdata=[];
+        let yCount=[],yOnline=[];
+        for(let i = 0;i < this.categoryList.length; i++){
+          for(let j = 0; j < this.deviceList.length; j++){
+            if(this.deviceList[j].categoryId===this.categoryList[i].categoryId){
+              xdata.push(this.categoryList[i].categoryName);
+              break;
+            }
+          }
+        }
+        for(let i = 0;i < xdata.length;i++){
+          let all = 0,Online = 0;
+          for(let j = 0; j < this.deviceList.length; j++) {
+            if(xdata[i] == this.deviceList[j].categoryName){
+              all = all + 1;
+              if(this.deviceList[j].status == 3){
+                Online = Online + 1;
+              }
+            }
+          }
+          yCount.push(all);
+          yOnline.push(Online);
+        }
+        let sum = 0;
+        for (let i = 0; i < yOnline.length; i++) {
+          sum += yOnline[i];
+        }
+        this.onlinedeviceCount = sum;
+        this.drawdevice(xdata,yCount,yOnline);
       },
       getinfoWebSocket(){
         getInfo().then(response => {
@@ -221,6 +266,11 @@
         listGroupById().then(response => {
           this.groupList = response.rows;
           this.groupCount=response.total;
+          for(let i = 0;i < this.groupList.length;i++){
+            if(this.groupList[i].groupId===this.startgroupid){
+              this.choosegroupName = this.groupList[i].groupName;
+            }
+          }
           this.$nextTick(() => {
             loadBMap().then(() => {
               this.getmap();
@@ -459,8 +509,14 @@
         var _this = this;
         myChart.on('click',function (params) {
             listDeviceByGroupId(params.data.id).then(response => {
+              for(let i = 0;i < _this.groupList.length;i++){
+                if(_this.groupList[i].groupId===params.data.id){
+                  _this.choosegroupName = _this.groupList[i].groupName;
+                }
+              }
               _this.deviceList = response.rows;
               _this.deviceCount=response.total;
+              _this.drawDeviceNum();
             });
         })
 
@@ -557,7 +613,7 @@
         };
         option && myChart.setOption(option);
       },
-      drawdevice(){
+      drawdevice(xdata,yCount,yOnline){
         let myChart = echarts.init(this.$refs.deviceChart);
         var option;
         const posList = [
@@ -677,7 +733,7 @@
             {
               type: 'category',
               axisTick: { show: false },
-              data: ['温湿度', '光照', 'CO2浓度',]
+              data: xdata
             }
           ],
           yAxis: [
@@ -694,7 +750,7 @@
               emphasis: {
                 focus: 'series'
               },
-              data: [3, 2, 1]
+              data: yCount
             },
             {
               name: '在线设备',
@@ -703,7 +759,7 @@
               emphasis: {
                 focus: 'series'
               },
-              data: [1, 1, 1]
+              data: yOnline
             },
           ]
         };
