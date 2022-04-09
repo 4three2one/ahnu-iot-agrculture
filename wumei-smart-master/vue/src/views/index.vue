@@ -50,81 +50,16 @@
             </el-dropdown-menu>
           </el-dropdown>
           <el-row :gutter="40" class="panel-group">
-            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(modelId[0])" >
+            <el-col :span="12" class="card-panel-col" v-for="(info,index) in devicemodelinfo" v-on:click.native="drawzhexian(info.id)">
               <div class="card-panel">
                 <div class="card-panel-icon-wrapper icon-message">
-                  <svg-icon icon-class="air_temp" class-name="card-panel-icon" />
+                  <svg-icon :icon-class="info.image" class-name="card-panel-icon" />
                 </div>
                 <div class="card-panel-description">
                   <div class="card-panel-text">
-                    空气温度
+                    {{info.name}}
                   </div>
-                  <count-to :start-val="0" :end-val="this.airtemp" :duration="1000" class="card-panel-num" />℃
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(modelId[1])">
-              <div class="card-panel">
-                <div class="card-panel-icon-wrapper icon-shopping">
-                  <svg-icon icon-class="air_hump" class-name="card-panel-icon" />
-                </div>
-                <div class="card-panel-description">
-                  <div class="card-panel-text">
-                    空气湿度
-                  </div>
-                  <count-to :start-val="0" :end-val="this.airhump" :duration="1000" class="card-panel-num" />hPa
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(modelId[2])">
-              <div class="card-panel">
-                <div class="card-panel-icon-wrapper icon-message">
-                  <svg-icon icon-class="light" class-name="card-panel-icon" />
-                </div>
-                <div class="card-panel-description">
-                  <div class="card-panel-text">
-                    光照强度
-                  </div>
-                  <count-to :start-val="0" :end-val="this.light" :duration="1000" class="card-panel-num" />lux
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(modelId[3])">
-              <div class="card-panel">
-                <div class="card-panel-icon-wrapper icon-shopping">
-                  <svg-icon icon-class="CO2" class-name="card-panel-icon" />
-                </div>
-                <div class="card-panel-description">
-                  <div class="card-panel-text">
-                    CO2浓度
-                  </div>
-                  <count-to :start-val="0" :end-val="this.CO2" :duration="1000" class="card-panel-num" />ppm
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(modelId[4])">
-              <div class="card-panel">
-                <div class="card-panel-icon-wrapper icon-message">
-                  <svg-icon icon-class="H2S" class-name="card-panel-icon" />
-                </div>
-                <div class="card-panel-description">
-                  <div class="card-panel-text">
-                    H2S浓度
-                  </div>
-                  <count-to :start-val="0" :end-val="this.H2S" :duration="1000" class="card-panel-num" />ppm
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="card-panel-col" v-on:click.native="drawzhexian(modelId[5])">
-              <div class="card-panel">
-                <div class="card-panel-icon-wrapper icon-shopping">
-                  <svg-icon icon-class="NH3" class-name="card-panel-icon" />
-                </div>
-                <div class="card-panel-description">
-                  <div class="card-panel-text">
-                    NH3浓度
-                  </div>
-                  <count-to :start-val="0" :end-val="this.NH3" :duration="1000" class="card-panel-num" />ppm
+                  <count-to :start-val="0" :end-val="info.data" :duration="1000" class="card-panel-num" />{{info.unit}}
                 </div>
               </div>
             </el-col>
@@ -151,6 +86,7 @@
   import {listDeviceByGroupId, getDeviceData, getOneDeviceData} from "../api/system/device";
   import {listCategory} from "../api/system/category";
   import {getData} from "../api/system/dict/data";
+  import {listTemplate} from "../api/iot/template"
   export default {
     name: "Index",
     components: {
@@ -187,15 +123,10 @@
         // 版本号
         version: "3.8.0",
         // 服务器信息
-        modelId:[0,0,0,0,0,0],
-        model:["空气温度","空气湿度","光照强度","二氧化碳浓度","硫化氢浓度","氨气浓度"],
-        airtemp: 0,
-        airhump: 0,
-        light: 0,
-        CO2: 0,
-        H2S: 0,
-        NH3: 0,
+        modelId:[0,0,0,0,0,0,0,0,0],
+        model:[],
         data:0,
+        devicemodelinfo:[],
       };
     },
     created() {
@@ -208,6 +139,9 @@
     },
     methods: {
       start(){
+        listTemplate().then(response =>{
+          this.model = response.rows;
+        });
         listCategory().then(response =>{
           this.categoryList = response.rows;
           this.categoryCount = response.total;
@@ -524,26 +458,27 @@
       getdata(device){
         this.chooseDeviceId = device.deviceId;
         this.chooseDevice = device.deviceName;
-        for(let i = 0;i < 6;i++){
-          this.modelId[i] = 0;
-        }
+        this.devicemodelinfo = [];
         getDeviceData(device.deviceId).then(response => {
           let temp = response.rows;
             for(let i = 0;i < response.total;i++){
-                switch(temp[i][0].modelId){
-                  case 1: this.airtemp = temp[i][0].modelData;this.modelId[0] = temp[i][0].modelId;break;
-                  case 2: this.airhump = temp[i][0].modelData;this.modelId[1] = temp[i][0].modelId;break;
-                  case 3: this.light = temp[i][0].modelData;this.modelId[2] = temp[i][0].modelId;break;
-                  case 4: this.CO2 = temp[i][0].modelData;this.modelId[3] = temp[i][0].modelId;break;
-                  case 5: this.H2S = temp[i][0].modelData;this.modelId[4] = temp[i][0].modelId;break;
-                  case 6: this.NH3 = temp[i][0].modelData;this.modelId[5] = temp[i][0].modelId;break;
-                  default: break;
+                for(let j = 0; j < this.model.length; j++){
+                  if(temp[i][0].modelId == this.model[j].templateId){
+                     this.devicemodelinfo.push({
+                       id: temp[i][0].modelId,
+                       name: this.model[j].templateName,
+                       data: temp[i][0].modelData,
+                       unit: JSON.parse(this.model[j].specs).unit,
+                       image:this.model[j].identifier,
+                     });
+                  }
                 }
             }
+            console.log(this.model);
+            console.log(this.devicemodelinfo);
         });
       },
       drawzhexian(param){
-        console.log(param);
           if(this.chooseDeviceId === -1){
 
           }else{
@@ -551,13 +486,19 @@
                 let temp = response.rows;
                 let data = [];
                 let time = [];
+                let title;
                 for(let i = 0;i < response.total;i++) {
                   time.push(temp[i].createTime);
                   data.push({
                     value:temp[i].modelData,
                   });
                 }
-                this.drawStats(time,data,this.model[param-1]);
+                for(let i = 0;i < this.devicemodelinfo.length; i++){
+                  if(this.devicemodelinfo[i].id == param){
+                    title = this.devicemodelinfo[i].name;
+                  }
+                }
+                this.drawStats(time,data,title);
               });
           }
       },
