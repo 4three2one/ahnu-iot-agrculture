@@ -22,7 +22,7 @@ import Pagination from "@/components/Pagination";
 // 自定义表格工具扩展
 import RightToolbar from "@/components/RightToolbar"
 import * as echarts from 'echarts'
-
+import scroll from 'vue-seamless-scroll'
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
@@ -51,7 +51,7 @@ Vue.prototype.msgInfo = function (msg) {
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
 Vue.component('RightToolbar', RightToolbar)
-
+Vue.use(scroll)
 Vue.use(permission)
 
 /**

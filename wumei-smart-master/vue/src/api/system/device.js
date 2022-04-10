@@ -18,7 +18,14 @@ export function listDevice(query) {
     params: query
   })
 }
-
+// 查询异常报警数据列表
+export function listAlarmData(query) {
+  return request({
+    url: '/system/device/AlarmList',
+    method: 'get',
+    params: query
+  })
+}
 export function listDeviceByGroupId(groupId) {
   return request({
     url: '/system/device/listDeviceByGroupId/' + groupId,

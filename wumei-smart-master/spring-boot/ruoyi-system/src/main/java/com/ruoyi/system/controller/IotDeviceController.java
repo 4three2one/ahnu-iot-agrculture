@@ -91,6 +91,7 @@ public class IotDeviceController extends BaseController {
     }
     /**
      * 查询异常数据列表
+     * 目前是可以看到所有的报警信息
      */
     @ApiOperation(value = "设备列表", notes = "设备列表")
     @PreAuthorize("@ss.hasPermi('system:device:list')")
