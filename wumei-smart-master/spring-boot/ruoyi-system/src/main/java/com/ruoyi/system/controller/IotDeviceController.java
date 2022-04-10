@@ -23,6 +23,7 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.domain.vo.DeviceControlCMD;
 import com.ruoyi.system.domain.vo.IotDeviceListDto;
 import com.ruoyi.system.service.IIotGroupService;
+import com.ruoyi.system.service.TokenServiceCopy;
 import com.ruoyi.system.service.impl.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -69,6 +70,12 @@ public class IotDeviceController extends BaseController {
     @Autowired
     private IotDeviceGroupServiceImpl iotDeviceGroupService;
 
+    @Autowired
+    private TokenServiceCopy tokenServiceCopy;
+
+    @Autowired
+    private IIotGroupService iotGroupService;
+
     /**
      * 查询设备列表
      */
@@ -80,6 +87,29 @@ public class IotDeviceController extends BaseController {
         LoginUser user = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         iotDevice.setOwnerId(user.getUser().getUserId().toString());
         List<IotDeviceListDto> list = iotDeviceService.selectIotDeviceList(iotDevice);
+        return getDataTable(list);
+    }
+    /**
+     * 查询异常数据列表
+     */
+    @ApiOperation(value = "设备列表", notes = "设备列表")
+    @PreAuthorize("@ss.hasPermi('system:device:list')")
+    @GetMapping("/AlarmList")
+    public TableDataInfo AlarmList(IotDevice iotDevice) {
+        LoginUser loginUser = tokenServiceCopy.getLoginUser(ServletUtils.getRequest());
+        IotGroup iotGroup = new IotGroup();
+        IotDeviceData iotDeviceData = new IotDeviceData();
+        /*if(!loginUser.getUser().isAdmin()) {
+            Long userId = loginUser.getUser().getUserId();
+            iotGroup.setUserId(userId);
+        }
+        startPage();
+        List<IotGroup> list = iotGroupService.selectIotGroupList(iotGroup);
+        for(int i = 0;i < list.size();i++){
+
+        }*/
+        iotDeviceData.setStatus("1");
+        List<IotDeviceData> list = iotDeviceDataService.selectIotDeviceDataList(iotDeviceData);
         return getDataTable(list);
     }
 

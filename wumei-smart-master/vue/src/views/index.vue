@@ -68,9 +68,29 @@
         <el-card style="margin:-10px;margin-top:20px;" shadow="hover">
           <div ref="statsChart" style="height:296px;"></div>
         </el-card>
+        <el-card style="margin:-10px;margin-top:20px;" shadow="hover">
+          <el-table :data="AlarmData" class="top"  style="width: 100%;">
+            <el-table-column prop="title" label="报警设备编号" width="150"></el-table-column>
+            <el-table-column prop="remark" label="环境因素" width="150"></el-table-column>
+            <el-table-column prop="date" label="值" width="100"></el-table-column>
+            <el-table-column prop="date" label="时间" width="150"></el-table-column>
+          </el-table>
+          <vue-seamless-scroll :data="AlarmData" :class-option="speed" style="height: 120px; overflow: hidden;">
+            <el-table
+              :data="AlarmData"
+              style="width: 100%"
+              class="bottom"
+            >
+              <el-table-column prop="deviceId" label="报警设备序号" width="150"></el-table-column>
+              <el-table-column prop="remark" label="环境因素" width="150"></el-table-column>
+              <el-table-column prop="modelData" label="值" width="100"></el-table-column>
+              <el-table-column prop="createTime" label="时间" width="150"></el-table-column>
+            </el-table>
+          </vue-seamless-scroll>
+        </el-card>
       </el-col>
-
     </el-row>
+
   </div>
 </template>
 <script>
@@ -83,7 +103,7 @@
   require('echarts/extension/bmap/bmap')
   import {getInfo} from "../api/login";
   import {listGroup, listGroupById} from "../api/system/group";
-  import {listDeviceByGroupId, getDeviceData, getOneDeviceData} from "../api/system/device";
+  import {listDeviceByGroupId, getDeviceData, getOneDeviceData,listAlarmData} from "../api/system/device";
   import {listCategory} from "../api/system/category";
   import {getData} from "../api/system/dict/data";
   import {listTemplate} from "../api/iot/template"
@@ -123,10 +143,14 @@
         // 版本号
         version: "3.8.0",
         // 服务器信息
-        modelId:[0,0,0,0,0,0,0,0,0],
         model:[],
         data:0,
         devicemodelinfo:[],
+        AlarmData:[],
+        AlarmTableData:[],
+        speed:  {
+          step: 0.5
+        },
       };
     },
     created() {
@@ -141,6 +165,16 @@
       start(){
         listTemplate().then(response =>{
           this.model = response.rows;
+        });
+        listAlarmData().then(response =>{
+          this.AlarmData = response.rows;
+          for(let i = 0;i < this.AlarmData.length;i++){
+              for(let j = 0;j < this.model.length;j++){
+                 if(this.AlarmData[i].modelId===this.model[j].templateId){
+                   this.AlarmData[i].remark = this.model[j].templateName;
+                 }
+              }
+          }
         });
         listCategory().then(response =>{
           this.categoryList = response.rows;
@@ -775,7 +809,20 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" >
+
+  .top{
+    .el-table__body-wrapper {
+      display: none;
+    }
+  }
+  .bottom {
+    .el-table__header-wrapper {
+      display: none;
+      width: 100%;
+    }
+  }
+
   .panel-group {
     .card-panel-col {
       margin-bottom: 10px;
@@ -823,7 +870,10 @@
         float: left;
         font-size: 32px;
       }
-
+      .seamless-warp {
+        height: 150px;
+        overflow: hidden;
+      }
       .card-panel-description {
         float: right;
         font-weight: bold;
