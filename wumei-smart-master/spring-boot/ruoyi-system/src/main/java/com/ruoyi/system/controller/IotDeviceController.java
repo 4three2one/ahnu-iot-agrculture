@@ -107,7 +107,6 @@ public class IotDeviceController extends BaseController {
         startPage();
         List<IotGroup> list = iotGroupService.selectIotGroupList(iotGroup);
         for(int i = 0;i < list.size();i++){
-
         }*/
         iotDeviceData.setStatus("1");
         List<IotDeviceData> list = iotDeviceDataService.selectIotDeviceDataList(iotDeviceData);

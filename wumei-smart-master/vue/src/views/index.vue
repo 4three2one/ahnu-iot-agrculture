@@ -775,18 +775,22 @@
             }
         }
         if(this.chooseDeviceId === obj.deviceId) {
-          if (obj.airtemp != null)
-            this.airtemp = obj.airtemp;
-          if (obj.airhump != null)
-            this.airhump = obj.airhump;
-          if (obj.CO2 != null)
-            this.CO2 = obj.CO2;
-          if (obj.light != null)
-            this.light = obj.light;
-          if (obj.NH3 != null)
-            this.NH3 = obj.NH3;
-          if (obj.H2S != null)
-            this.H2S = obj.H2S;
+          if (obj.airtemp != null){
+            for(let i = 0;i < this.devicemodelinfo;i++){
+              if(this.devicemodelinfo[i].image==="airtemp"){
+                this.devicemodelinfo[i].data = obj.airtemp;
+                  break;
+              }
+            }
+          }
+          if (obj.airhump != null){
+            for(let i = 0;i < this.devicemodelinfo;i++){
+              if(this.devicemodelinfo[i].image==="airhump"){
+                this.devicemodelinfo[i].data = obj.airhump;
+                break;
+              }
+            }
+          }
         }
       },
       setOncloseMessage() {
