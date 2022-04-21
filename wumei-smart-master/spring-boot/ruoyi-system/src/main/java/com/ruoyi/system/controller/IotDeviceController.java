@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.CustomException;
 import com.ruoyi.common.utils.ServletUtils;
@@ -228,6 +230,23 @@ public class IotDeviceController extends BaseController {
         }
         return AjaxResult.success();
     }
+    /*获取设备对应的物模型*/
+    @GetMapping("/deviceModel/{deviceId}")
+    public AjaxResult getDeviceModel(@PathVariable("deviceId") long deviceId) {
+        IotDeviceModel iotDeviceModel = new IotDeviceModel();
+        iotDeviceModel.setDeviceId(deviceId);
+        List<IotDeviceModel> iotDeviceModels = iotDeviceModelService.selectIotDeviceModelList(iotDeviceModel);
+        if(iotDeviceModels==null) return AjaxResult.success();
+        JSONArray ar = new JSONArray();
+        for (int i = 0; i < iotDeviceModels.size(); i++) {
+            JSONObject model = new JSONObject();
+            model.put("templateId", iotDeviceModels.get(i).getModelId());
+            ThingsModelTemplate thingsModelTemplate = thingsModelTemplateService.selectThingsModelTemplateByTemplateId(iotDeviceModels.get(i).getModelId());
+            model.put("templateName", thingsModelTemplate.getTemplateName());
+            ar.add(model);
+        }
+        return AjaxResult.success(ar);
+    }
 
     /**
      * 修改设备
@@ -237,6 +256,26 @@ public class IotDeviceController extends BaseController {
     @Log(title = "设备", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody IotDevice iotDevice) {
+        /*修改物模型  此段代码需要加在service层 不然不能一起回滚*/
+        IotDeviceModel iotDeviceModel = new IotDeviceModel();
+        iotDeviceModel.setDeviceId(iotDevice.getDeviceId());
+        List<IotDeviceModel> iotDeviceModels = iotDeviceModelService.selectIotDeviceModelList(iotDeviceModel);
+        if(iotDeviceModels!=null&&iotDeviceModels.size()>=1){
+            for (int i = 0; i < iotDeviceModels.size(); i++) {
+                iotDeviceModelService.deleteIotDeviceModelById(iotDeviceModels.get(i).getDeviceModelId());
+            }
+        }
+        if(iotDevice.getTemplateIds()!=null&&iotDevice.getTemplateIds().length>=1){
+            Long[] templateIds = iotDevice.getTemplateIds();
+            for (int i = 0; i < templateIds.length; i++) {
+                Long templateId = templateIds[i];
+                IotDeviceModel deviceModel = new IotDeviceModel();
+                deviceModel.setDeviceId(iotDevice.getDeviceId());
+                deviceModel.setModelId(templateId);
+                iotDeviceModelService.insertIotDeviceModel(deviceModel);
+
+            }
+        }
         return toAjax(iotDeviceService.updateIotDevice(iotDevice));
     }
 
