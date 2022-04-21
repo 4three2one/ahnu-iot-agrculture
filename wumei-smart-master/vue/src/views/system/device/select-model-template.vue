@@ -102,7 +102,8 @@ export default {
         },
         // 多选框选中数据
         handleSelectionChange(selection) {
-            this.ids = selection.map((item) => [item.templateId,item.templateName]);
+            let json={}
+            this.ids = selection.map((item) => {json={templateId: item.templateId, templateName: item.templateName,type:""};return json;});
             this.single = selection.length !== 1;
             this.multiple = !selection.length;
             // Id数组传递到父组件

@@ -78,9 +78,7 @@
                     </el-col>
                   </el-form-item>
                   <el-form-item label="数据索引">
-                    <el-col :span="4">
-                      <el-input v-model="form.specs.index"  type="number"/>
-                    </el-col>
+                      <el-input-number v-model="form.specs.index" :min="0"  type="number"/>
                   </el-form-item>
                   <el-form-item label="cron表达式"  >
                     <el-col :span="12">

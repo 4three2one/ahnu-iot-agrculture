@@ -164,59 +164,6 @@
           <el-switch v-model="scope.row.isOnline" :active-value=1 :inactive-value=0 active-color="#13ce66" disabled></el-switch>
         </template>
       </el-table-column>
-      <!-- wifi信号强度(信号极好4格[-55—— 0]，信号好3格[-70—— -55），信号一般2格[-85—— -70），信号差1格[-100—— -85）) -->
-      <el-table-column label="信号" align="center" prop="rssi">
-        <template slot-scope="scope" style="font-size: 40px">
-          <div style="font-size: 30px">
-            <svg-icon v-if="scope.row.rssi >= '-55'" icon-class="wifi_4" />
-            <svg-icon
-              v-else-if="scope.row.rssi >= '-70' && scope.row.rssi < '-55'"
-              icon-class="wifi_3"
-            />
-            <svg-icon
-              v-else-if="scope.row.rssi >= '-85' && scope.row.rssi < '-70'"
-              icon-class="wifi_2"
-            />
-            <svg-icon
-              v-else-if="scope.row.rssi >= '-100' && scope.row.rssi < '-85'"
-              icon-class="wifi_1"
-            />
-            <svg-icon v-else icon-class="wifi_0" />
-          </div>
-        </template>
-      </el-table-column>
-<!--      <el-table-column label="继电器" align="center" prop="relayStatus">-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-switch v-model="scope.row.relayStatus" :active-value=1 :inactive-value=0 active-color="#13ce66" disabled></el-switch>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column label="灯状态" align="center" prop="lightStatus">-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-switch v-model="scope.row.lightStatus" :active-value=1 :inactive-value=0 active-color="#13ce66" disabled></el-switch>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column label="雷达感应" align="center" prop="isRadar">-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-switch v-model="scope.row.isRadar" :active-value=1 :inactive-value=0 disabled></el-switch>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column label="报警" align="center" prop="isAlarm">-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-switch v-model="scope.row.isAlarm" :active-value=1 :inactive-value=0 disabled></el-switch>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column label="遥控" align="center" prop="isRfControl">-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-switch v-model="scope.row.isRfControl" :active-value=1 :inactive-value=0 disabled></el-switch>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column-->
-<!--        label="设备温度"-->
-<!--        align="center"-->
-<!--        prop="deviceTemperature"-->
-<!--      />-->
-<!--      <el-table-column label="配网地址" align="center" prop="networkAddress" />-->
-      <!-- <el-table-column label="配网IP" align="center" prop="networkIp" /> -->
       <el-table-column
         label="创建时间"
         align="center"
@@ -235,22 +182,22 @@
         width="120"
       >
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-view"
-            @click="handleStatus(scope.row)"
-            v-hasPermi="['system:device:edit']"
-            >状态</el-button
-          >
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-setting"
-            @click="handleSet(scope.row)"
-            v-hasPermi="['system:device:edit']"
-            >配置</el-button
-          >
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-view"-->
+<!--            @click="handleStatus(scope.row)"-->
+<!--            v-hasPermi="['system:device:edit']"-->
+<!--            >状态</el-button-->
+<!--          >-->
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-setting"-->
+<!--            @click="handleSet(scope.row)"-->
+<!--            v-hasPermi="['system:device:edit']"-->
+<!--            >配置</el-button-->
+<!--          >-->
           <el-button
             size="mini"
             type="text"
@@ -259,14 +206,14 @@
             v-hasPermi="['system:device:edit']"
             >修改</el-button
           >
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-cloudy"
-            disabled
-            v-hasPermi="['system:device:edit']"
-            >升级</el-button
-          >
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-cloudy"-->
+<!--            disabled-->
+<!--            v-hasPermi="['system:device:edit']"-->
+<!--            >升级</el-button-->
+<!--          >-->
         </template>
       </el-table-column>
     </el-table>
@@ -331,9 +278,19 @@
         <el-form-item label="物模型" prop="templateList" >
 
           <el-button type="success" plain icon="el-icon-plus" size="mini" @click="handleThingsModelSelect" >导入通用物模型</el-button>
-          <el-row  v-for="template in templateModels" >
-            <el-col ><div class="grid-content bg-purple-dark el-icon-success" v-text="template[1]" :value="template[0]"></div></el-col>
-          </el-row>
+<!--          <el-row  >-->
+<!--            <el-col ><div class="grid-content bg-purple-dark el-icon-success" v-text="template[1]" :value="template[0]"></div></el-col>-->
+          <el-divider></el-divider>
+          <el-tag style="margin-left: 20px"
+                  @close="handleClose(template)"
+            v-for="template in templateModels"
+            :value="template.templateId"
+            :key="template.templateId"
+            closable
+            :type="template.type">
+            {{template.templateName}}
+          </el-tag>
+<!--          </el-row>-->
         </el-form-item>
 
 <!--        <el-form-item label="固件版本" prop="firmwareVersion">-->
@@ -662,6 +619,7 @@
 import {
   listDevice,
   getDevice,
+  getDeviceModel,
   delDevice,
   addDevice,
   updateDevice,
@@ -981,6 +939,9 @@ export default {
     handleUpdate(row) {
       this.reset();
       const deviceId = row.deviceId || this.ids;
+      getDeviceModel(deviceId).then(response => {
+        this.templateModels = response.data;
+      });
       getDevice(deviceId).then(response => {
         this.form = response.data;
         this.open = true;
@@ -1011,7 +972,7 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          this.form.templateIds = this.templateModels.map((item) => item[0]);
+          this.form.templateIds = this.templateModels.map((item) => item.templateId);
           if (this.form.deviceId != null) {
             updateDevice(this.form).then(response => {
               this.msgSuccess("修改成功");
@@ -1026,6 +987,7 @@ export default {
             });
           }
         }
+        this.$refs.selectModelTemplate.$refs.selectTemplateTable.clearSelection();
       });
     },
     /** 状态提交按钮 */
@@ -1122,6 +1084,10 @@ export default {
       }
 
     },
+    //关闭选择的物模型
+    handleClose(tag) {
+      this.templateModels.splice(this.templateModels.indexOf(tag), 1);
+    }
   }
 };
 </script>

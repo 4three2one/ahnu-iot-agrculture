@@ -53,6 +53,13 @@ export function getDevice(deviceId) {
     method: 'get'
   })
 }
+//查询设备的物模型列表
+export function getDeviceModel(deviceId) {
+  return request({
+    url: '/system/device/deviceModel/' + deviceId,
+    method: 'get'
+  })
+}
 
 // 新增设备
 export function addDevice(data) {
