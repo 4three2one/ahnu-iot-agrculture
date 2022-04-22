@@ -82,7 +82,7 @@ spring:
   mqtt:
     username: admin                           # 账号
     password: password                           # 密码
-    host-url: tcp://121.5.35.48:61613          # mqtt连接tcp地址
+    host-url: tcp://1.116.1.99:61613          # mqtt连接tcp地址
     client-id: server-wumei-${random.value}         # 客户端Id，每个启动的id要不同 随机：${random.value}
     default-topic: test                       # 默认主题
     timeout: 100                              # 超时时间
