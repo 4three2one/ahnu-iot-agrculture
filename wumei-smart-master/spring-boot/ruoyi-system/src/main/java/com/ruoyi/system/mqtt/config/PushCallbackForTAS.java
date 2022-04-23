@@ -144,10 +144,12 @@ public class PushCallbackForTAS implements MqttCallback {
             iotDeviceService.updateIotDevice(deviceEntity);
             IotDeviceModel deviceModelSelect = new IotDeviceModel();
             deviceModelSelect.setDeviceId(deviceEntity.getDeviceId());
+            String specs = (String)cacheMap.get("specs");
+            JSONObject specsObject = JSON.parseObject(specs);
             int index = -1;
             Long modelId = null;
             try {
-                index= (int) cacheMap.get("index");
+                index= (int) specsObject.get("index");
             }catch (Exception e){
                 logger.error(e.getMessage());
             }
@@ -167,8 +169,8 @@ public class PushCallbackForTAS implements MqttCallback {
             double max = -999;
             double min = 999;
             try {
-                max= (double) cacheMap.get("max");
-                min= (double) cacheMap.get("min");
+                max= (double) specsObject.get("max");
+                min= (double) specsObject.get("min");
             }catch (Exception e){
                 logger.error(e.getMessage());
             }
