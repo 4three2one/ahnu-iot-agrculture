@@ -127,12 +127,15 @@ public class PushCallbackForTAS implements MqttCallback {
                 }
                 return;
             }
+
             String data = encodeHex(mqttMessage.getPayload());
             //添加设备信息
             IotDevice device = getTasDevice(data);
             device.setGroupId(iotGroup.getGroupId());
             IotDevice deviceEntity = iotDeviceService.selectIotDeviceByNum(device.getDeviceNum());
             if(deviceEntity==null) return;
+            Map<String, Object> cacheMap = redisCache.getCacheMap(gourpID + "_" + device.getDeviceId());
+            if(cacheMap==null) return;
             //更新redis信息
             redisCache.setCacheObject("device_"+device.getDeviceNum(),playload);
             redisCache.expire("device_"+device.getDeviceNum(), 30);
@@ -141,8 +144,51 @@ public class PushCallbackForTAS implements MqttCallback {
             iotDeviceService.updateIotDevice(deviceEntity);
             IotDeviceModel deviceModelSelect = new IotDeviceModel();
             deviceModelSelect.setDeviceId(deviceEntity.getDeviceId());
+            int index = -1;
+            Long modelId = null;
+            try {
+                index= (int) cacheMap.get("index");
+            }catch (Exception e){
+                logger.error(e.getMessage());
+            }
+            try {
+                modelId= (Long) cacheMap.get("modelId");
+            }catch (Exception e){
+                logger.error(e.getMessage());
+            }
+            if(index==-1) return;
+            if(modelId==null) return;
+            double tasDeviceData = getTasDeviceData(data, index);
+            IotDeviceData deviceData = new IotDeviceData();
+            deviceData.setDeviceId(deviceEntity.getDeviceId());
+            deviceData.setModelId(modelId);
+            deviceData.setModelData(tasDeviceData);
+            deviceData.setCreateTime(DateUtils.getNowDate());
+            double max = -999;
+            double min = 999;
+            try {
+                max= (double) cacheMap.get("max");
+                min= (double) cacheMap.get("min");
+            }catch (Exception e){
+                logger.error(e.getMessage());
+            }
+            deviceData.setStatus("3");
+            if (tasDeviceData > max || tasDeviceData < min) {
+                deviceData.setStatus("1");
+            }
+            iotDeviceDataService.insertIotDeviceData(deviceData);
+            try {
+                Map<String,Object> map = Maps.newHashMap();
+                map.put("deviceId",new Long(gourpID));
+                map.put((String)cacheMap.get("identifier"),tasDeviceData);
+                webSocket.sendMessageAll(JSON.toJSONString(map),"0");
+            }
+            catch (IOException e){
+                System.out.println("WebSocket错误");
+            }
+            //
             //获取设备定义的物模型
-            List<IotDeviceModel> iotDeviceModels = iotDeviceModelService.selectIotDeviceModelList(deviceModelSelect);
+            /*List<IotDeviceModel> iotDeviceModels = iotDeviceModelService.selectIotDeviceModelList(deviceModelSelect);
             for(IotDeviceModel deviceModel:iotDeviceModels){
                 Long modelId = deviceModel.getModelId();
                 if(modelId==null) continue;
@@ -186,7 +232,7 @@ public class PushCallbackForTAS implements MqttCallback {
                 catch (IOException e){
                     System.out.println("WebSocket错误");
                 }
-            }
+            }*/
         }
     }
     @Override
