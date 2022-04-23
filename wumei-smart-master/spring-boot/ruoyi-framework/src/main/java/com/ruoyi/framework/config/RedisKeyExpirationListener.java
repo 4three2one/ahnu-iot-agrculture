@@ -62,7 +62,5 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
             iotDevice.setStatus("1");
             iotDeviceService.updateIotDevice(iotDevice);
         }
-
-        System.out.println("到期的KeyName是: " + id);
     }
 }
