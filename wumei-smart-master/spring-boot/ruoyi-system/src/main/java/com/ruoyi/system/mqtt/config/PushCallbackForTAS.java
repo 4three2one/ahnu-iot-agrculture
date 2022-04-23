@@ -99,6 +99,7 @@ public class PushCallbackForTAS implements MqttCallback {
 
         logger.info("接收消息主题 : " + topic);
         logger.info("接收消息Qos : " + mqttMessage.getQos());
+        logger.info("接受消息指令" + encodeHex(mqttMessage.getPayload()));
         String playload=new String(mqttMessage.getPayload());
         if(StringUtils.isEmpty(topic)) return;
         if(StringUtils.isEmpty(playload)) return;
@@ -134,8 +135,9 @@ public class PushCallbackForTAS implements MqttCallback {
             device.setGroupId(iotGroup.getGroupId());
             IotDevice deviceEntity = iotDeviceService.selectIotDeviceByNum(device.getDeviceNum());
             if(deviceEntity==null) return;
-            Map<String, Object> cacheMap = redisCache.getCacheMap(gourpID + "_" + device.getDeviceId());
-            if(cacheMap==null) return;
+            Map<String, Object> cacheMap = redisCache.getCacheMap(gourpID + "_" + deviceEntity.getDeviceId());
+            if(cacheMap==null||cacheMap.size()==0) return;
+            redisCache.deleteObject(gourpID + "_" + deviceEntity.getDeviceId());
             //更新redis信息
             redisCache.setCacheObject("device_"+device.getDeviceNum(),playload);
             redisCache.expire("device_"+device.getDeviceNum(), 30);
@@ -149,7 +151,7 @@ public class PushCallbackForTAS implements MqttCallback {
             int index = -1;
             Long modelId = null;
             try {
-                index= (int) specsObject.get("index");
+                index= Integer.parseInt(specsObject.get("index").toString());
             }catch (Exception e){
                 logger.error(e.getMessage());
             }
@@ -169,8 +171,8 @@ public class PushCallbackForTAS implements MqttCallback {
             double max = -999;
             double min = 999;
             try {
-                max= (double) specsObject.get("max");
-                min= (double) specsObject.get("min");
+                max= Double.parseDouble(specsObject.get("max").toString());
+                min= Double.parseDouble(specsObject.get("min").toString());
             }catch (Exception e){
                 logger.error(e.getMessage());
             }

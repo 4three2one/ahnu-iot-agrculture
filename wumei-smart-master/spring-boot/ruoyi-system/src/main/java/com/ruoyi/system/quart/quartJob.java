@@ -50,22 +50,22 @@ public class quartJob {
             JSONObject specsJson = JSON.parseObject(model.getSpecs());
             try {
                 String atcmd = specsJson.get("atcmd").toString();
+                String index = specsJson.get("index").toString();
                 /*
-                * 如果温湿度的指令一样，则redis中只会存储一次，也只会发送一次消息
-                * 像钾氮磷传感器的每个指令不同，在redis中会分别存储
-                * PushCallbackForTAS类中的消息监听要先判断是那个大棚，再判断指令，最后再判断传感器编号
+                * 循环发送指令
+                * 像钾氮磷传感器的每个指令不同，在redis中会分别存储对应的物模型
                 */
                 Map<String,Object> map = new HashedMap<String,Object>();
-                map.put("deviceId",deviceId);
-                map.put("groupId",group_Id);
-                if(redisCache.getCacheObject(atcmd) == null) {
-                    //发送命令
-                    SendMessage(atcmd);
-                    redisCache.setCacheObject(atcmd, JSON.toJSONString(map));
-                    redisCache.expire(atcmd, 5);
-                }
-                sleep(6000);
+                map.put("specs",model.getSpecs());
+                map.put("modelId",model.getTemplateId());
+                map.put("identifier",model.getIdentifier());
+                //发送命令
+                redisCache.setCacheMap(group_Id + "_" + deviceId, map);
+                SendMessage(atcmd);
+                /*redisCache.expire(group_Id + "_" + deviceId, 4);*/
+                Thread.sleep(4000);
             }catch (Exception e){
+                e.printStackTrace();
                 System.out.println("键值为空");
             }
         }
