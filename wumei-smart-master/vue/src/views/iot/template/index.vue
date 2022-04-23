@@ -80,11 +80,11 @@
                   <el-form-item label="数据索引">
                       <el-input-number v-model="form.specs.index" :min="0"  type="number"/>
                   </el-form-item>
-                  <el-form-item label="cron表达式"  >
-                    <el-col :span="12">
-                      <el-input v-model="form.specs.cron" placeholder="请输入cron执行表达式" />
-                    </el-col>
-                  </el-form-item>
+<!--                  <el-form-item label="cron表达式"  >-->
+<!--                    <el-col :span="12">-->
+<!--                      <el-input v-model="form.specs.cron" placeholder="请输入cron执行表达式" />-->
+<!--                    </el-col>-->
+<!--                  </el-form-item>-->
                   <el-form-item label="状态">
                     <el-col :span="8">
                       <el-radio-group v-model="form.specs.status">
@@ -374,7 +374,7 @@ export default {
             }
             data.atcmd=this.form.specs.atcmd;
             data.index=this.form.specs.index;
-            data.cron=this.form.specs.cron;
+            // data.cron=this.form.specs.cron;
             data.status=this.form.specs.status;
             return JSON.stringify(data);
         },
