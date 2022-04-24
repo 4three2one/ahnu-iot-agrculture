@@ -1,12 +1,18 @@
 <template>
   <div class="app-container home">
     <el-row :gutter="40">
-      <el-col :span="14">
-        <el-card style="margin:-10px;" shadow="hover" body-style="background-color:#F8F8F8;">
-          <div ref = "map" style="height:350px;margin:-10px;margin-top:-5px;"></div>
-        </el-card>
-        <el-card style="margin:-10px;" shadow="hover">
-              <div style="height: 180px">
+      <el-col :span="15">
+        <el-row >
+          <el-col>
+            <el-card  shadow="hover" body-style="background-color:#F8F8F8;">
+              <div ref = "map" style="height:480px;"></div>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col>
+            <el-card  shadow="hover">
+              <div style="height: 100px">
                 <div class="card-panel-text">
                   <el-col :span="12">
                     <div style = "font-size:20px;text-align: center;font-weight:bold;margin-bottom: 5px;">大棚名:{{choosegroupName}}</div>
@@ -29,13 +35,15 @@
                     </el-col>
                   </el-col>
                   <el-col :span="12">
-                      <div ref="deviceChart" style="height: 300px"></div>
+                    <div ref="deviceChart" style="height: 300px"></div>
                   </el-col>
                 </div>
               </div>
-        </el-card>
+            </el-card>
+          </el-col>
+        </el-row>
       </el-col>
-      <el-col :span="10">
+      <el-col :span="9">
         <el-card style="margin:-10px;" shadow="hover">
           <h3 style="font-weight:bold;display: inline">大棚环境数据</h3>
           <el-dropdown style = "margin: 10px" @command="getdata">
@@ -107,6 +115,7 @@
   import {listCategory} from "../api/system/category";
   import {getData} from "../api/system/dict/data";
   import {listTemplate} from "../api/iot/template"
+  import { myStyleJson } from "../api/custom_map_config.js"
   export default {
     name: "Index",
     components: {
@@ -273,9 +282,9 @@
             text: '设备组分布和状态（数量 '+this.groupCount+'）',
             target: "_blank",
             textStyle: {
-              color: '#333',
-              textBorderColor: '#fff',
-              textBorderWidth: 10,
+              color: '#d0d2d4',
+              // textBorderColor: '#fff',
+              // textBorderWidth: 10,
             },
             top: 10,
             left: 'center'
@@ -304,123 +313,10 @@
 
           },
           bmap: {
-            center: [130, 25],
-            zoom: 6,
+            center: [118.4,31.2],
+            zoom: 11,
             roam: true,
             mapStyle: {
-              styleJson: [{
-                featureType: 'water',
-                elementType: 'all',
-                stylers: {
-                  color: '#a0cfff'
-                }
-              },
-                {
-                  featureType: 'land',
-                  elementType: 'all',
-                  stylers: {
-                    color: '#FFFFFF'
-                  }
-                },
-                {
-                  featureType: 'railway',
-                  elementType: 'all',
-                  stylers: {
-                    visibility: 'off'
-                  }
-                },
-                {
-                  featureType: 'highway',
-                  elementType: 'all',
-                  stylers: {
-                    color: '#fdfdfd'
-                  }
-                },
-                {
-                  featureType: 'highway',
-                  elementType: 'labels',
-                  stylers: {
-                    visibility: 'off'
-                  }
-                },
-                {
-                  featureType: 'arterial',
-                  elementType: 'geometry',
-                  stylers: {
-                    color: '#fefefe'
-                  }
-                },
-                {
-                  featureType: 'arterial',
-                  elementType: 'geometry.fill',
-                  stylers: {
-                    color: '#fefefe'
-                  }
-                },
-                {
-                  featureType: 'poi',
-                  elementType: 'all',
-                  stylers: {
-                    visibility: 'off'
-                  }
-                },
-                {
-                  featureType: 'green',
-                  elementType: 'all',
-                  stylers: {
-                    visibility: 'off'
-                  }
-                },
-                {
-                  featureType: 'subway',
-                  elementType: 'all',
-                  stylers: {
-                    visibility: 'off'
-                  }
-                },
-                {
-                  featureType: 'manmade',
-                  elementType: 'all',
-                  stylers: {
-                    color: '#d1d1d1'
-                  }
-                },
-                {
-                  featureType: 'local',
-                  elementType: 'all',
-                  stylers: {
-                    color: '#d1d1d1'
-                  }
-                },
-                {
-                  featureType: 'arterial',
-                  elementType: 'labels',
-                  stylers: {
-                    visibility: 'off'
-                  }
-                },
-                {
-                  featureType: 'boundary',
-                  elementType: 'all',
-                  stylers: {
-                    color: '#999999'
-                  }
-                },
-                {
-                  featureType: 'building',
-                  elementType: 'all',
-                  stylers: {
-                    color: '#d1d1d1'
-                  }
-                },
-                {
-                  featureType: 'label',
-                  elementType: 'labels.text.fill',
-                  stylers: {
-                    color: '#999999'
-                  }
-                }
-              ]
             }
           },
           series: [{
@@ -474,6 +370,8 @@
         };
 
         option && myChart.setOption(option);
+        var bmap = myChart.getModel().getComponent("bmap").getBMap();
+        bmap.setMapStyle({ styleJson: myStyleJson });
         var _this = this;
         myChart.on('click',function (params) {
             listDeviceByGroupId(params.data.id).then(response => {
@@ -815,6 +713,9 @@
 
 <style lang="scss" >
 
+  .anchorBL{
+    display:none;
+  }
   .top{
     .el-table__body-wrapper {
       display: none;
