@@ -54,7 +54,7 @@
               <el-dropdown-item v-for="(device,index) in deviceList"
                                 :command = "device"
                                 v-text="device.deviceName+device.categoryName"
-                                />
+              />
             </el-dropdown-menu>
           </el-dropdown>
           <el-row :gutter="40" class="panel-group">
@@ -178,11 +178,11 @@
         listAlarmData().then(response =>{
           this.AlarmData = response.rows;
           for(let i = 0;i < this.AlarmData.length;i++){
-              for(let j = 0;j < this.model.length;j++){
-                 if(this.AlarmData[i].modelId===this.model[j].templateId){
-                   this.AlarmData[i].remark = this.model[j].templateName;
-                 }
+            for(let j = 0;j < this.model.length;j++){
+              if(this.AlarmData[i].modelId===this.model[j].templateId){
+                this.AlarmData[i].remark = this.model[j].templateName;
               }
+            }
           }
         });
         listCategory().then(response =>{
@@ -374,16 +374,16 @@
         bmap.setMapStyle({ styleJson: myStyleJson });
         var _this = this;
         myChart.on('click',function (params) {
-            listDeviceByGroupId(params.data.id).then(response => {
-              for(let i = 0;i < _this.groupList.length;i++){
-                if(_this.groupList[i].groupId===params.data.id){
-                  _this.choosegroupName = _this.groupList[i].groupName;
-                }
+          listDeviceByGroupId(params.data.id).then(response => {
+            for(let i = 0;i < _this.groupList.length;i++){
+              if(_this.groupList[i].groupId===params.data.id){
+                _this.choosegroupName = _this.groupList[i].groupName;
               }
-              _this.deviceList = response.rows;
-              _this.deviceCount=response.total;
-              _this.drawDeviceNum();
-            });
+            }
+            _this.deviceList = response.rows;
+            _this.deviceCount=response.total;
+            _this.drawDeviceNum();
+          });
         })
 
       },
@@ -393,46 +393,46 @@
         this.devicemodelinfo = [];
         getDeviceData(device.deviceId).then(response => {
           let temp = response.rows;
-            for(let i = 0;i < response.total;i++){
-                for(let j = 0; j < this.model.length; j++){
-                  if(temp[i][0].modelId == this.model[j].templateId){
-                     this.devicemodelinfo.push({
-                       id: temp[i][0].modelId,
-                       name: this.model[j].templateName,
-                       data: temp[i][0].modelData,
-                       unit: JSON.parse(this.model[j].specs).unit,
-                       image:this.model[j].identifier,
-                     });
-                  }
-                }
+          for(let i = 0;i < response.total;i++){
+            for(let j = 0; j < this.model.length; j++){
+              if(temp[i][0].modelId == this.model[j].templateId){
+                this.devicemodelinfo.push({
+                  id: temp[i][0].modelId,
+                  name: this.model[j].templateName,
+                  data: temp[i][0].modelData,
+                  unit: JSON.parse(this.model[j].specs).unit,
+                  image:this.model[j].identifier,
+                });
+              }
             }
-            console.log(this.model);
-            console.log(this.devicemodelinfo);
+          }
+          console.log(this.model);
+          console.log(this.devicemodelinfo);
         });
       },
       drawzhexian(param){
-          if(this.chooseDeviceId === -1){
+        if(this.chooseDeviceId === -1){
 
-          }else{
-              getOneDeviceData(this.chooseDeviceId,param).then(response =>{
-                let temp = response.rows;
-                let data = [];
-                let time = [];
-                let title;
-                for(let i = 0;i < response.total;i++) {
-                  time.push(temp[i].createTime);
-                  data.push({
-                    value:temp[i].modelData,
-                  });
-                }
-                for(let i = 0;i < this.devicemodelinfo.length; i++){
-                  if(this.devicemodelinfo[i].id == param){
-                    title = this.devicemodelinfo[i].name;
-                  }
-                }
-                this.drawStats(time,data,title);
+        }else{
+          getOneDeviceData(this.chooseDeviceId,param).then(response =>{
+            let temp = response.rows;
+            let data = [];
+            let time = [];
+            let title;
+            for(let i = 0;i < response.total;i++) {
+              time.push(temp[i].createTime);
+              data.push({
+                value:temp[i].modelData,
               });
-          }
+            }
+            for(let i = 0;i < this.devicemodelinfo.length; i++){
+              if(this.devicemodelinfo[i].id == param){
+                title = this.devicemodelinfo[i].name;
+              }
+            }
+            this.drawStats(time,data,title);
+          });
+        }
       },
       drawStats(time,data,title) {
         // 基于准备好的dom，初始化echarts实例
@@ -664,29 +664,18 @@
         var obj = JSON.parse(event.data);
         this.data = '服务端返回：' + event.data;
         for(let i = 0; i < this.groupList.length; i++){
-            console.log(this.groupList[i]);
-            console.log(obj.groupId);
-            if(obj.groupId === this.groupList[i].groupId){
-                this.groupList[i].status = obj.status;
-                this.getmap();
-                break;
-            }
+          console.log(this.groupList[i]);
+          console.log(obj.groupId);
+          if(obj.groupId === this.groupList[i].groupId){
+            this.groupList[i].status = obj.status;
+            this.getmap();
+            break;
+          }
         }
         if(this.chooseDeviceId === obj.deviceId) {
-          if (obj.airtemp != null){
-            for(let i = 0;i < this.devicemodelinfo;i++){
-              if(this.devicemodelinfo[i].image==="airtemp"){
-                this.devicemodelinfo[i].data = obj.airtemp;
-                  break;
-              }
-            }
-          }
-          if (obj.airhump != null){
-            for(let i = 0;i < this.devicemodelinfo;i++){
-              if(this.devicemodelinfo[i].image==="airhump"){
-                this.devicemodelinfo[i].data = obj.airhump;
-                break;
-              }
+          for(let i = 0;i < this.devicemodelinfo.length;i++){
+            if (obj.modelId == this.devicemodelinfo[i].id) {
+              this.devicemodelinfo[i].data = obj.data;
             }
           }
         }

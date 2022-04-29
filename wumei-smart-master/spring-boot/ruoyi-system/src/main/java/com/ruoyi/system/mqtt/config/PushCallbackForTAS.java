@@ -183,8 +183,9 @@ public class PushCallbackForTAS implements MqttCallback {
             iotDeviceDataService.insertIotDeviceData(deviceData);
             try {
                 Map<String,Object> map = Maps.newHashMap();
-                map.put("deviceId",new Long(gourpID));
-                map.put((String)cacheMap.get("identifier"),tasDeviceData);
+                map.put("deviceId",deviceEntity.getDeviceId());
+                map.put("modelId",modelId);
+                map.put("data",tasDeviceData);
                 webSocket.sendMessageAll(JSON.toJSONString(map),"0");
             }
             catch (IOException e){

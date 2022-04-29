@@ -67,20 +67,15 @@ public class WebSocket {
             //把自己的信息加入到map当中去
             clients.put(userId, this);
             //给自己发一条消息：告诉自己现在都有谁在线
-            /*sleep(5000);
-            Map<String,Object> map2 = Maps.newHashMap();
-            map2.put("groupId",15);
-            //移除掉自己
-            Set<String> set = clients.keySet();
-            map2.put("status","1");
-            sendMessageTo(JSON.toJSONString(map2),userId);*/
             sleep(5000);
-            Map<String,Object> map3 = Maps.newHashMap();
-            map3.put("deviceId",15);
-            sendMessageTo(JSON.toJSONString(map3),userId);
-            /*sleep(5000);
-            map2.put("airtemp",5);
-            sendMessageTo(JSON.toJSONString(map2),userId);*/
+            Map<String,Object> map = Maps.newHashMap();
+            /*map.put("deviceId",15);
+            map.put("modelId",2);
+            map.put("data",100);
+            sendMessageAll(JSON.toJSONString(map),"0");*/
+            sleep(5000);
+            map.put("airtemp",5);
+            sendMessageTo(JSON.toJSONString(map),userId);
         }
         catch (IOException e){
             logger.info(userId+"上线的时候通知所有人发生了错误");
