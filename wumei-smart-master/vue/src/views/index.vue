@@ -157,6 +157,7 @@
         devicemodelinfo:[],
         AlarmData:[],
         AlarmTableData:[],
+        chooseModelId:0,
         speed:  {
           step: 0.5
         },
@@ -411,6 +412,7 @@
         });
       },
       drawzhexian(param){
+        this.chooseModelId = param;
         if(this.chooseDeviceId === -1){
 
         }else{
@@ -420,10 +422,13 @@
             let time = [];
             let title;
             for(let i = 0;i < response.total;i++) {
-              time.push(temp[i].createTime);
-              data.push({
-                value:temp[i].modelData,
-              });
+              //过滤值为0的数据
+              if(temp[i].modelData!=0) {
+                time.push(temp[i].createTime);
+                data.push({
+                  value: temp[i].modelData,
+                });
+              }
             }
             for(let i = 0;i < this.devicemodelinfo.length; i++){
               if(this.devicemodelinfo[i].id == param){
@@ -674,8 +679,11 @@
         }
         if(this.chooseDeviceId === obj.deviceId) {
           for(let i = 0;i < this.devicemodelinfo.length;i++){
-            if (obj.modelId == this.devicemodelinfo[i].id) {
+            if (obj.modelId === this.devicemodelinfo[i].id) {
               this.devicemodelinfo[i].data = obj.data;
+              if(this.chooseModelId === obj.modelId){
+                this.drawzhexian(this.chooseModelId);
+              }
             }
           }
         }
