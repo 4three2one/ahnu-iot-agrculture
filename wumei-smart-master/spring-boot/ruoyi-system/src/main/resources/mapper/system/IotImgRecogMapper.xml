@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.IotImgRecogMapper">
+
+    <resultMap type="IotImgRecog" id="IotImgRecogResult">
+                    <result property="imgId" column="img_id"/>
+                    <result property="deviceId" column="device_id"/>
+                    <result property="imgName" column="img_name"/>
+                    <result property="diseaseStatus" column="disease_status"/>
+                    <result property="imgOrginPath" column="img_orgin_path"/>
+                    <result property="imgResultPath" column="img_result_path"/>
+                    <result property="status" column="status"/>
+                    <result property="createBy" column="create_by"/>
+                    <result property="createTime" column="create_time"/>
+                    <result property="updateBy" column="update_by"/>
+                    <result property="updateTime" column="update_time"/>
+            </resultMap>
+    
+    <sql id="selectIotImgRecogVo">
+        select img_id, device_id, img_name, disease_status, img_orgin_path, img_result_path, status, create_by, create_time, update_by, update_time        from iot_img_recog
+    </sql>
+
+    <select id="selectIotImgRecogList" parameterType="IotImgRecog" resultMap="IotImgRecogResult">
+        <include refid="selectIotImgRecogVo"/>
+        <where>
+                                                                                                    <if test="deviceId != null ">
+                            and device_id = #{deviceId}
+                        </if>
+                                                                                                            <if test="imgName != null  and imgName != ''">
+                            and img_name like concat('%', #{imgName}, '%')
+                        </if>
+                                                                                                            <if test="diseaseStatus != null  and diseaseStatus != ''">
+                            and disease_status = #{diseaseStatus}
+                        </if>
+                                                                                                            <if test="imgOrginPath != null  and imgOrginPath != ''">
+                            and img_orgin_path = #{imgOrginPath}
+                        </if>
+                                                                                                            <if test="imgResultPath != null  and imgResultPath != ''">
+                            and img_result_path = #{imgResultPath}
+                        </if>
+                                                                                                            <if test="status != null  and status != ''">
+                            and status = #{status}
+                        </if>
+                                                                                                                                                                        </where>
+    </select>
+
+    <select id="selectIotImgRecogById" parameterType="Long"
+            resultMap="IotImgRecogResult">
+                    <include refid="selectIotImgRecogVo"/>
+            where img_id = #{imgId}
+            </select>
+
+    <insert id="insertIotImgRecog" parameterType="IotImgRecog" useGeneratedKeys="true"
+            keyProperty="imgId">
+        insert into iot_img_recog
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                                                                            <if test="deviceId != null">device_id,
+                    </if>
+                                                                <if test="imgName != null and imgName != ''">img_name,
+                    </if>
+                                                                <if test="diseaseStatus != null">disease_status,
+                    </if>
+                                                                <if test="imgOrginPath != null">img_orgin_path,
+                    </if>
+                                                                <if test="imgResultPath != null">img_result_path,
+                    </if>
+                                                                <if test="status != null">status,
+                    </if>
+                                                                <if test="createBy != null">create_by,
+                    </if>
+                                                                <if test="createTime != null">create_time,
+                    </if>
+                                                                <if test="updateBy != null">update_by,
+                    </if>
+                                                                <if test="updateTime != null">update_time,
+                    </if>
+                                    </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                                                                            <if test="deviceId != null">#{deviceId},
+                    </if>
+                                                                <if test="imgName != null and imgName != ''">#{imgName},
+                    </if>
+                                                                <if test="diseaseStatus != null">#{diseaseStatus},
+                    </if>
+                                                                <if test="imgOrginPath != null">#{imgOrginPath},
+                    </if>
+                                                                <if test="imgResultPath != null">#{imgResultPath},
+                    </if>
+                                                                <if test="status != null">#{status},
+                    </if>
+                                                                <if test="createBy != null">#{createBy},
+                    </if>
+                                                                <if test="createTime != null">#{createTime},
+                    </if>
+                                                                <if test="updateBy != null">#{updateBy},
+                    </if>
+                                                                <if test="updateTime != null">#{updateTime},
+                    </if>
+                                    </trim>
+    </insert>
+
+    <update id="updateIotImgRecog" parameterType="IotImgRecog">
+        update iot_img_recog
+        <trim prefix="SET" suffixOverrides=",">
+                                                                            <if test="deviceId != null">device_id =
+                        #{deviceId},
+                    </if>
+                                                                <if test="imgName != null and imgName != ''">img_name =
+                        #{imgName},
+                    </if>
+                                                                <if test="diseaseStatus != null">disease_status =
+                        #{diseaseStatus},
+                    </if>
+                                                                <if test="imgOrginPath != null">img_orgin_path =
+                        #{imgOrginPath},
+                    </if>
+                                                                <if test="imgResultPath != null">img_result_path =
+                        #{imgResultPath},
+                    </if>
+                                                                <if test="status != null">status =
+                        #{status},
+                    </if>
+                                                                <if test="createBy != null">create_by =
+                        #{createBy},
+                    </if>
+                                                                <if test="createTime != null">create_time =
+                        #{createTime},
+                    </if>
+                                                                <if test="updateBy != null">update_by =
+                        #{updateBy},
+                    </if>
+                                                                <if test="updateTime != null">update_time =
+                        #{updateTime},
+                    </if>
+                                    </trim>
+        where img_id = #{imgId}
+    </update>
+
+    <delete id="deleteIotImgRecogById" parameterType="Long">
+        delete from iot_img_recog where img_id = #{imgId}
+    </delete>
+
+    <delete id="deleteIotImgRecogByIds" parameterType="String">
+        delete from iot_img_recog where img_id in
+        <foreach item="imgId" collection="array" open="(" separator="," close=")">
+            #{imgId}
+        </foreach>
+    </delete>
+    </mapper>

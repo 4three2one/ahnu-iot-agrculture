@@ -1,6 +1,10 @@
 <template>
   <div class="app-container home">
     <el-row :gutter="40">
+      <iframe src="http://demo.mayapony.site/#/" width="100%" height="1000"></iframe>
+    </el-row>
+
+    <el-row :gutter="100">
       <el-col :span="15">
         <el-row >
           <el-col>
